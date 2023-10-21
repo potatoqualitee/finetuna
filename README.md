@@ -54,18 +54,3 @@ Train your models and interact with them—all through PowerShell.
     ```powershell
     Get-TuneFile | Out-GridView -Passthru | Start-TuneJob
     ```
-
-2. **Monitor Training**:
-   Use `Get-TuneJob` to monitor the status of your training job.
-    ```powershell
-    Get-TuneJob -Id your-training-job-id
-    ```
-
-### Interacting with Trained Model
-
-1. **Start Chatting**:
-   Once your model is trained, you can start a chat session using `Invoke-TuneChat`.
-    ```powershell
-    Invoke-TuneChat -ModelId your-trained-model-id -Prompt Hello, world!
-    ```
-
