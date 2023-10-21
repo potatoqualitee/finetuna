@@ -74,7 +74,7 @@
             ProjectUri = 'https://github.com/potatoqualitee/finetuna'
 
             # A URL to an icon representing this module.
-            IconUri = 'ttps://github.com/potatoqualitee/finetuna/assets/8278033/b6e12c36-afd2-46a1-8024-a9fd12c9b773'
+            IconUri = 'https://github.com/potatoqualitee/finetuna/assets/8278033/b6e12c36-afd2-46a1-8024-a9fd12c9b773'
 
         } # End of PSData hashtable
 
