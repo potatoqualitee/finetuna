@@ -9,6 +9,7 @@ function Invoke-RestMethod2 {
         [HashTable]$Headers,
         [string]$UserAgent,
         [string]$ContentType,
+        [psobject]$Form,
         [Microsoft.PowerShell.Commands.WebRequestSession]$WebSession,
         [string]$SessionVariable,
         [PSCredential]$Credential,
