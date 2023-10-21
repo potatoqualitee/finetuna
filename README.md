@@ -1,8 +1,7 @@
-
 # Finetuna: Fine-Tuning OpenAI Models Using PowerShell 7+
 
 <p align="center">
-  <img src="./logo.png" alt="Finetuna Badge"/>
+  <img src="./logo.png"/>
 </p>
 
 ## Introduction
@@ -34,3 +33,24 @@ Train your models and interact with them—all through PowerShell.
 ## Quick Start
 
 ### Preparing Files for Training
+
+1. **Send Files**:
+   Use `Send-TuneFile` to upload your training files.
+
+    ```powershell
+    Send-TuneFile -Path C:\temp\cats.csv
+    ```
+
+2. **Verify File Upload**:
+   Use `Get-TuneFile` to make sure your file was uploaded correctly.
+    ```powershell
+    Get-TuneFile
+    ```
+
+### Starting and Monitoring Training
+
+1. **Start Training**:
+   Once your files are ready, start the training job.
+    ```powershell
+    Get-TuneFile | Out-GridView -Passthru | Start-TuneJob
+    ```
