@@ -2,7 +2,7 @@
 # Finetuna: Fine-Tuning OpenAI Models Using PowerShell 7+
 
 <p align="center">
-  <img src="https://github.com/potatoqualitee/finetuna/assets/8278033/b6e12c36-afd2-46a1-8024-a9fd12c9b773" alt="Finetuna Badge"/>
+  <img src="./logo.png" alt="Finetuna Badge"/>
 </p>
 
 ## Introduction
