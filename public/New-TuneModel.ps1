@@ -49,15 +49,6 @@ function New-TuneModel {
         [string]$Model = 'gpt-3.5-turbo-0613',
         [switch]$Append
     )
-    begin {
-        if ($Append) {
-            if ((Get-TuneModel -Model $Model -Custom)) {
-                $system  = $false
-            } else {
-                $system = $true
-            }
-        }
-    }
     process {
         if ($PSCmdlet.ShouldProcess("Fine-tuning model $Model using training file $FilePath")) {
             # Upload the file and get the file ID
@@ -97,26 +88,8 @@ function New-TuneModel {
                 }
 
                 if ($jobStatus.status -eq "succeeded") {
-                    if ($system -and $Append) {
-                        $script:currentmodel = $Model = $jobStatus.fine_tuned_model
-                        $system = $false
-                    } else {
-                        if (-not $Append) {
-                            $script:currentmodel = $jobStatus.fine_tuned_model
-                        }
-                    }
-
-                    $script:currentmodel = $jobStatus.fine_tuned_model
-                    Write-Verbose "Your new model is named $script:currentmodel and will now be used when executing Invoke-TuneChat"
-
-                    # Use ChatGPT to inform the user about the new model
-                    try {
-                        Invoke-TuneChat -Message $message -Model $script:currentmodel -ErrorAction Stop
-                    } catch {
-                        Write-Warning "Seems like the new model needs a nap, trying again in 10 seconds"
-                        Start-Sleep 10
-                        Invoke-TuneChat -Message $message -Model $script:currentmodel -ErrorAction Continue
-                    }
+                    $script:currentmodel = $Model = $jobStatus.fine_tuned_model
+                    Write-Verbose "Your new model is named $script:currentmodel and will now be used by default when executing Invoke-TuneChat"
                     break
                 } else {
                     Write-Verbose "Fine-tuning job $tuneJobId is still running"
@@ -128,6 +101,30 @@ function New-TuneModel {
                 }
                 Start-Sleep -Seconds 5
             } while ($true)
+            # Use ChatGPT to inform the user about the new model
+            try {
+                Start-Sleep 5
+                $params = @{
+                    Message       = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
+                    Model         = $script:currentmodel
+                    ErrorAction   = 'Stop'
+                    ErrorVariable = 'weberror'
+                }
+                Invoke-TuneChat @params
+                if ($weberror) {
+                    Write-Warning "This happens sometimes :/"
+                }
+            } catch {
+                Write-Warning "Seems like the new model needs a nap, trying again in 10 seconds"
+                Start-Sleep 10
+
+                $params = @{
+                    Message       = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
+                    Model         = $script:currentmodel
+                    ErrorAction   = 'Continue'
+                }
+                Invoke-TuneChat @params
+            }
         }
     }
 }
