@@ -38,7 +38,7 @@ Train your models and interact with them—all through PowerShell.
    Use `Send-TuneFile` to upload your training files.
 
     ```powershell
-    Send-TuneFile -Path C:\temp\cats.csv
+    Get-ChildItem .\sample\potato.jsonl | Send-TuneFile | Start-TuneJob
     ```
 
 2. **Verify File Upload**:
