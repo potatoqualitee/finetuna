@@ -66,7 +66,7 @@ function New-TuneModel {
             Write-Verbose "Uploaded $FilePath with ID $fileId"
 
             # Start the tune job
-            Write-Verbose "Starting fine-tuning job for $Model with FileId $fileId"
+            Write-Verbose "Starting fine-tuning job for model $Model with FileId $fileId"
             $tuneJobId = Start-TuneJob -Id $fileId -Model $Model | Select-Object -ExpandProperty Id
             Write-Verbose "Started fine-tuning job $tuneJobId"
 
@@ -110,7 +110,13 @@ function New-TuneModel {
                     Write-Verbose "Your new model is named $script:currentmodel and will now be used when executing Invoke-TuneChat"
 
                     # Use ChatGPT to inform the user about the new model
-                    Invoke-TuneChat -Message $message -Model $script:currentmodel
+                    try {
+                        Invoke-TuneChat -Message $message -Model $script:currentmodel -ErrorAction Stop
+                    } catch {
+                        Write-Warning "Seems like the new model needs a nap, trying again in 10 seconds"
+                        Start-Sleep 10
+                        Invoke-TuneChat -Message $message -Model $script:currentmodel -ErrorAction Continue
+                    }
                     break
                 } else {
                     Write-Verbose "Fine-tuning job $tuneJobId is still running"

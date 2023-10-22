@@ -25,3 +25,5 @@ $PSDefaultParameterValues["*:NoTypeInformation"] = $true
 
 Set-Alias -Name Invoke-TunedChat -Value Invoke-TuneChat
 Set-Alias -Name Create-CustomModel -Value New-TuneModel
+
+$ErrorActionPreference = "Stop"
