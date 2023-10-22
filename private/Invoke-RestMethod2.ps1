@@ -25,6 +25,8 @@ function Invoke-RestMethod2 {
         [switch]$PreserveAuthorizationOnRedirect
     )
 
+    $vbpref = $VerbosePreference
+    $VerbosePreference = 'SilentlyContinue'
     if (-not $script:WebSession) {
         Write-Verbose "Establishing Connection"
         $null = Connect-TuneService
@@ -39,4 +41,5 @@ function Invoke-RestMethod2 {
     } else {
         $results
     }
+    $VerbosePreference = $vbpref
 }

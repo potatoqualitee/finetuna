@@ -1,4 +1,4 @@
-# Finetuna: Fine-Tuning OpenAI Models Using PowerShell 7+
+# finetuna: Fine-tuned PowerShell module to Fine-Tune OpenAI Models
 
 <p align="center">
   <img src="./logo.png"/>

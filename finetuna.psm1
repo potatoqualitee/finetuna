@@ -23,5 +23,5 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\public" -Filter "*.ps1" -Recur
 $PSDefaultParameterValues["*:ApiKey"] = $env:OpenAIKey
 $PSDefaultParameterValues["*:NoTypeInformation"] = $true
 
-
 Set-Alias -Name Invoke-TunedChat -Value Invoke-TuneChat
+Set-Alias -Name Create-CustomModel -Value New-TuneModel

@@ -22,16 +22,17 @@ function Invoke-TuneChat {
     param (
         [Parameter(ValueFromPipeline)]
         [string[]]$Message = @("how's Potato?"),
-        [string]$Model = $script:currrentmodel
+        [string]$Model = $script:currentmodel
     )
     begin {
         if (-not $Model) {
-            $Model = $script:currrentmodel = (Get-TuneJob | Select-Object -First 1).fine_tuned_model
-        } else {
             $Model = "gpt-3.5-turbo-0613"
         }
-
         $jsonmsg = @()
+        # sometimes it disappears?
+        if (-not $Message) {
+            $Message = @("how's Potato?")
+        }
         foreach ($msg in $Message) {
             $jsonmsg += @{
                 role    = "user"
@@ -45,6 +46,7 @@ function Invoke-TuneChat {
             messages   = $jsonmsg
         } | ConvertTo-Json
 
+        Write-Verbose "Chatting using model $Model"
         # Create a hashtable containing the parameters
         $params = @{
             Uri        = "https://api.openai.com/v1/chat/completions"
@@ -52,8 +54,7 @@ function Invoke-TuneChat {
             Body       = $body
         }
 
-        Write-Verbose "Asking $Message"
+        Write-Verbose "Asking: $Message"
         (Invoke-OpenAIAPI @params).choices.message.content
-
     }
 }
