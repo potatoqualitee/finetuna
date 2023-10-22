@@ -62,11 +62,13 @@ Drop that append parameter and train a bunch of models with a bunch of jsonl fil
 | Get-TuneJob        | Retrieves a list or details of a specific tuning job|
 | Get-TuneJobEvent   | Fetches events for a list or specific tuning job   |
 | Get-TuneModel      | Retrieves a list or a specific tuning model        |
+| Get-TuneModelDefault| Gets the default model that Invoke-TuneChat uses|
 | Invoke-TuneChat    | Initiates a chat session with a tuning model       |
 | New-TuneModel      | Creates a new tuning model                         |
 | Remove-TuneFile    | Deletes a specific tuning file                     |
 | Remove-TuneModel   | Deletes a specific tuning model                    |
 | Send-TuneFile      | Sends a file for tuning                            |
+| Set-TuneModelDefault| Sets the default model that Invoke-TuneChat will use|
 | Start-TuneJob      | Starts a new tuning job                            |
 | Stop-TuneJob       | Stops a running tuning job                         |
 

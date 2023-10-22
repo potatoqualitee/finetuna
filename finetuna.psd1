@@ -12,7 +12,7 @@
     RootModule = 'finetuna.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.8'
+    ModuleVersion = '0.9'
 
     # Minimum PowerShell version
     PowerShellVersion = '7.0'

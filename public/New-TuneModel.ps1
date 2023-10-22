@@ -69,6 +69,8 @@ function New-TuneModel {
             }
             Write-Progress @progress
 
+            $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
             # Check the status every 5 seconds
             do {
                 $jobStatus = Get-TuneJob -Id $tuneJobId
@@ -99,31 +101,34 @@ function New-TuneModel {
                 if ($progress.PercentComplete -ge 100) {
                     $progress.PercentComplete = 0
                 }
-                Start-Sleep -Seconds 5
+                Start-Sleep -Seconds 15
             } while ($true)
+            $null = $stopwatch.Stop()
+
+            Write-Verbose "Tuning took $($stopwatch.Elapsed)"
+
             # Use ChatGPT to inform the user about the new model
-            try {
-                Start-Sleep 5
-                $params = @{
-                    Message       = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
-                    Model         = $script:currentmodel
-                    ErrorAction   = 'Stop'
-                    ErrorVariable = 'weberror'
-                }
-                Invoke-TuneChat @params
-                if ($weberror) {
-                    Write-Warning "This happens sometimes :/"
-                }
-            } catch {
-                Write-Warning "Seems like the new model needs a nap, trying again in 10 seconds"
+            Start-Sleep 5
+            $params = @{
+                Message       = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
+                Model         = $script:currentmodel
+                ErrorVariable = "weberror"
+            }
+            Invoke-TuneChat @params
+            if ($weberror) {
+                Write-Warning "This happens sometimes :/ Seems like the new model needs a nap, trying again in 10 seconds"
                 Start-Sleep 10
 
                 $params = @{
-                    Message       = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
+                    Message     = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
                     Model         = $script:currentmodel
-                    ErrorAction   = 'Continue'
+                    ErrorVariable = "weberror2"
                 }
                 Invoke-TuneChat @params
+
+                if ($weberror2) {
+                    Write-Output "Fine, since ChatGPT won't tell you, your new model is $script:currentmodel"
+                }
             }
         }
     }

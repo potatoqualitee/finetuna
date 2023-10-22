@@ -37,7 +37,7 @@ function Set-TuneModelDefault {
     process {
         if ($Latest) {
             $last = Get-TuneModel | Select-Object -Last 1
-            $script:currentModel = $last.model_name
+            $script:currentModel = $last.id
             Write-Verbose "Setting default model to the latest: $script:currentModel"
             $last
         } else {
