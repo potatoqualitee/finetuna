@@ -13,6 +13,9 @@ function Invoke-TuneChat {
     .PARAMETER Model
     The model to be used for the chat. Valid options are 'gpt-3.5-turbo-0613', 'babbage-002', and 'davinci-002'.
 
+    .PARAMETER MaxTokens
+    The maximum number of tokens to be returned by the API. Defaults to 256.
+
     .EXAMPLE
     Invoke-TuneChat -Message @(@{role='system'; content='You are a helpful assistant.'}, @{role='user'; content='Who won the world series in 2020?'}) -Model 'gpt-3.5-turbo-0613'
 
@@ -22,7 +25,8 @@ function Invoke-TuneChat {
     param (
         [Parameter(ValueFromPipeline)]
         [string[]]$Message = @("how's Potato?"),
-        [string]$Model = $script:currentmodel
+        [string]$Model = $script:currentmodel,
+        [int]$MaxTokens = 256
     )
     begin {
         if (-not $Model) {
@@ -44,14 +48,14 @@ function Invoke-TuneChat {
         $body = @{
             model      = $Model
             messages   = $jsonmsg
-        } | ConvertTo-Json
-
+            max_tokens = $MaxTokens
+        }
         Write-Verbose "Chatting using model $Model"
         # Create a hashtable containing the parameters
         $params = @{
             Uri        = "https://api.openai.com/v1/chat/completions"
             Method     = "POST"
-            Body       = $body
+            Body       = ($body | ConvertTo-Json)
         }
 
         Write-Verbose "Asking: $Message"
