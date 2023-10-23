@@ -51,6 +51,8 @@ function Invoke-TuneChat {
             max_tokens = $MaxTokens
         }
         Write-Verbose "Chatting using model $Model"
+        Write-Verbose "Max tokens: $MaxTokens"
+        Write-Verbose "Body: $($body | ConvertTo-Json)"
         # Create a hashtable containing the parameters
         $params = @{
             Uri        = "https://api.openai.com/v1/chat/completions"
