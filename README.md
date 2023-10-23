@@ -42,7 +42,9 @@ Use a bunch of json files to train or "fine tune" a model to make a bot. `Append
     Get-ChildItem .\sample\totbot*.jsonl | Create-CustomModel -Append
 ```
 
-*** "train" used in a casual manner, as I am not an ML scientist and you probably aren't either because they don't use PowerShell for these tasks 💔
+*** "train" used in a casual manner, as I am not an ML scientist and you probably aren't either because they don't use PowerShell for these tasks 💔 Anyway, now I can chat with my cat.
+
+![image](https://github.com/potatoqualitee/finetuna/assets/8278033/46ccab85-8cb8-4945-ab1a-09bec63f3718)
 
 ### Train a bunch of bots in one line
 
@@ -128,4 +130,4 @@ Use `Remove-TuneModel` to delete all models. Be careful with this one!
 Get-TuneModel -Custom | Remove-TuneModel -Confirm:$false
 ```
 
-Sorry these docs suck, I gotta work on a presentation so I'll fix them later.
+Sorry these docs could be better, I gotta work on a presentation so I'll fix them later.
