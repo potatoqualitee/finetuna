@@ -30,8 +30,14 @@ Right now, the awesome functionality is that you can pipe a whole directory of j
     Install-Module -Name finetuna
     ```
     Dependencies will be installed automatically.
----
 
+3. **Get and set your OpenAI API Key**:
+   Get/Create your OpenAI API key from [ https://platform.openai.com/account/api-keys]( https://platform.openai.com/account/api-keys) and then set as *plain text* with `$env:OpenAIKey`:
+    ```powershell
+    $env:OpenAIKey = "sk-fake-T3BlbFJi7vpHiKhyYKy8aUT3Blbk"
+    ```
+   You may also want to put it in your $profile.
+---
 ## Quick Start
 
 ### Train* a whole bot in one line
