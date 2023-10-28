@@ -107,10 +107,19 @@ function New-TuneModel {
 
             Write-Verbose "Tuning took $($stopwatch.Elapsed)"
 
+
+            # Initialize the progress bar
+            $progressparm = @{
+                Status          = "Fine tuning complete! Now waiting for the new model, $script:currentmodel, to be ready.."
+                Activity        = "Fine-tuning $Model"
+                PercentComplete = ($progress.PercentComplete) + 1
+            }
+            Write-Progress @progressparm
+
             # Use ChatGPT to inform the user about the new model
-            Start-Sleep 5
+            Start-Sleep 15
             $params = @{
-                Message       = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
+                Message       = "Can you say 'Say hello to your new model, $script:currentmodel!' exactly like that?"
                 Model         = $script:currentmodel
                 ErrorVariable = "weberror"
             }
@@ -120,7 +129,7 @@ function New-TuneModel {
                 Start-Sleep 10
 
                 $params = @{
-                    Message     = "Can you say 'Say hello to your new model,  $script:currentmodel!' exactly like that?"
+                    Message     = "Can you say 'Say hello to your new model, $script:currentmodel!' exactly like that?"
                     Model         = $script:currentmodel
                     ErrorVariable = "weberror2"
                 }

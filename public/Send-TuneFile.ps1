@@ -84,17 +84,48 @@ function Send-TuneFile {
                     }
                 }
 
-                # Existing variables
-                $uri = "https://api.openai.com/v1/files"
-                $form = @{
-                    purpose = "fine-tune"
-                    file    = Get-Item -Path $tempFile
-                }
+                # PowerShell 5.1 needs to create a manual boundary
+                # for multipart/form-data
 
-                $params = @{
-                    Uri    = $Uri
-                    Method = "POST"
-                    Form   = $Form
+                $uri = "https://api.openai.com/v1/files"
+
+                if ($PSVersionTable.PSVersion.Major -le 5) {
+                    $fileBytes = [System.IO.File]::ReadAllBytes($tempFile)
+                    $fileEnc = [System.Text.Encoding]::GetEncoding('UTF-8').GetString($fileBytes)
+                    $boundary = [System.Guid]::NewGuid().ToString()
+
+                    $LF = "`r`n"
+
+                    $bodyLines = (
+                        "--$boundary",
+                        "Content-Disposition: form-data; name=`"purpose`"$LF",
+                        "fine-tune",
+                        "--$boundary",
+                        "Content-Disposition: form-data; name=`"file`"; filename=`"$basename.jsonl`"",
+                        "Content-Type: application/octet-stream$LF",
+                        $fileEnc,
+                        "--$boundary--$LF"
+                    ) -join $LF
+
+                    # turn invoke-restmethod into splat
+                    $params = @{
+                        Uri         = $Uri
+                        Method      = "POST"
+                        ContentType = "multipart/form-data; boundary=`"$boundary`""
+                        Body        = $bodyLines
+                    }
+                } else {
+                    # Existing variables
+                    $form = @{
+                        purpose = "fine-tune"
+                        file    = Get-Item -Path $tempFile
+                    }
+
+                    $params = @{
+                        Uri    = $Uri
+                        Method = "POST"
+                        Form   = $Form
+                    }
                 }
 
                 Invoke-RestMethod2 @params

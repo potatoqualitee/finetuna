@@ -12,10 +12,10 @@
     RootModule = 'finetuna.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0'
+    ModuleVersion = '1.0.1'
 
     # Minimum PowerShell version
-    PowerShellVersion = '7.0'
+    PowerShellVersion = '3.0'
 
     # ID used to uniquely identify this module
     GUID = '3dc00ef4-ff85-48c9-8701-b96aa91cfa99'
@@ -70,9 +70,8 @@
     # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
     PrivateData = @{
         PSData = @{
-
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @("openai", "chatgpt", "modeling", "tuning", "fine-tuning")
+            Tags = @("openai", "chatgpt", "modeling", "tuning", "fine-tuning", "potato")
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/potatoqualitee/finetuna/blob/main/LICENSE'
