@@ -14,7 +14,8 @@ Right now, the awesome functionality is that you can pipe a whole directory of j
 
 ## Prerequisites
 
-- PowerShell 7 or above
+- PowerShell (any version)
+- OpenAI API Key
 
 ## Installation
 
