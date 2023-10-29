@@ -11,7 +11,7 @@ function Invoke-TuneChat {
     An array of messages to be sent to the OpenAI API. Each message should be a hashtable with 'role' and 'content' keys.
 
     .PARAMETER Model
-    The model to be used for the chat. Valid options are 'gpt-3.5-turbo-0613', 'babbage-002', and 'davinci-002'.
+    The model to be used for the chat.
 
     .PARAMETER MaxTokens
     The maximum number of tokens to be returned by the API. Defaults to 256.

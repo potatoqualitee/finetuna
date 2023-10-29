@@ -124,6 +124,7 @@ function New-TuneModel {
             $params = @{
                 Message       = "Can you say 'Say hello to your new model, $script:currentmodel' exactly like that?"
                 Model         = $script:currentmodel
+                ErrorAction   = "SilentlyContinue"
                 ErrorVariable = "weberror"
             }
             Invoke-TuneChat @params
@@ -134,6 +135,7 @@ function New-TuneModel {
                 $params = @{
                     Message     = "Can you say 'Say hello to your new model, $script:currentmodel' exactly like that?"
                     Model         = $script:currentmodel
+                    ErrorAction   = "SilentlyContinue"
                     ErrorVariable = "weberror2"
                 }
                 Invoke-TuneChat @params

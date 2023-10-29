@@ -12,6 +12,9 @@ function Get-TuneModel {
     .PARAMETER Custom
     Indicates whether to retrieve only custom models. When the switch is provided, the command filters out models owned by OpenAI or the system, returning only those models that are custom-made by the user.
 
+    .PARAMETER Latest
+    Indicates whether to retrieve only the latest version of the model. When the switch is provided, the command filters out all but the latest version of the model.
+
     .EXAMPLE
     Get-TuneModel
 
@@ -30,7 +33,8 @@ function Get-TuneModel {
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias("ModelName", "model_name")]
         [string[]]$Model,
-        [switch]$Custom
+        [switch]$Custom,
+        [switch]$Latest
     )
     process {
         if ($Model) {
@@ -44,6 +48,8 @@ function Get-TuneModel {
 
                 if ($Custom) {
                     Invoke-RestMethod2 @params | Where-Object owned_by -notmatch "openai|system"
+                } elseif ($Latest) {
+                    Invoke-RestMethod2 @params | Select-Object -Last 1
                 } else {
                     Invoke-RestMethod2 @params
                 }
@@ -57,6 +63,8 @@ function Get-TuneModel {
             }
             if ($Custom) {
                 Invoke-RestMethod2 @params | Where-Object owned_by -notmatch "openai|system"
+            } elseif ($Latest) {
+                Invoke-RestMethod2 @params | Select-Object -Last 1
             } else {
                 Invoke-RestMethod2 @params
             }
