@@ -45,7 +45,8 @@ function New-TuneModel {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
-        [string]$FilePath,
+        [ValidateScript({ return (Test-Path $_) })]
+        [System.IO.FileInfo]$FilePath,
         [string]$Model = 'gpt-3.5-turbo-0613',
         [switch]$Append
     )
@@ -84,7 +85,9 @@ function New-TuneModel {
 
                 if ($jobStatus.status -in "failed", "cancelled") {
                     <# statuses: running, succeeded, failed, cancelled #>
-                    throw "Fine-tuning job $tuneJobId failed"
+                    $tunejob = Get-TuneJob -Id $tuneJobId
+
+                    throw "Fine-tuning job $tuneJobId for file $basename failed: $($tunejob.error.message)"
                     # not sure if it needs a throw and a break?
                     break
                 }
@@ -117,9 +120,9 @@ function New-TuneModel {
             Write-Progress @progressparm
 
             # Use ChatGPT to inform the user about the new model
-            Start-Sleep 15
+            Start-Sleep 25
             $params = @{
-                Message       = "Can you say 'Say hello to your new model, $script:currentmodel!' exactly like that?"
+                Message       = "Can you say 'Say hello to your new model, $script:currentmodel' exactly like that?"
                 Model         = $script:currentmodel
                 ErrorVariable = "weberror"
             }
@@ -129,7 +132,7 @@ function New-TuneModel {
                 Start-Sleep 10
 
                 $params = @{
-                    Message     = "Can you say 'Say hello to your new model, $script:currentmodel!' exactly like that?"
+                    Message     = "Can you say 'Say hello to your new model, $script:currentmodel' exactly like that?"
                     Model         = $script:currentmodel
                     ErrorVariable = "weberror2"
                 }

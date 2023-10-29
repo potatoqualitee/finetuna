@@ -14,6 +14,9 @@ function Get-TuneModelDefault {
     [CmdletBinding()]
     param ()
     process {
+        if (-not $script:currentModel) {
+            $script:currentModel = "gpt-3.5-turbo-0613"
+        }
         $script:currentModel
     }
 }
