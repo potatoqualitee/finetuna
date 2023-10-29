@@ -16,6 +16,19 @@ function Invoke-TuneChat {
     .PARAMETER MaxTokens
     The maximum number of tokens to be returned by the API. Defaults to 256.
 
+    .PARAMETER Raw
+    Returns the raw response from the API.
+
+    .EXAMPLE
+    Invoke-TuneChat -Message "How do I install dbatools?"
+
+    This example sends a message to the OpenAI API using the default model and returns the response.
+
+    .EXAMPLE
+    Invoke-TuneChat -Message "How do I install dbatools?" -Verbose
+
+    See what's going on behind the scenes, including token usage.
+
     .EXAMPLE
     Invoke-TuneChat -Message @(@{role='system'; content='You are a helpful assistant.'}, @{role='user'; content='Who won the world series in 2020?'}) -Model 'gpt-3.5-turbo-0613'
 
@@ -26,12 +39,10 @@ function Invoke-TuneChat {
         [Parameter(ValueFromPipeline)]
         [string[]]$Message = @("how's Potato?"),
         [string]$Model = $script:currentmodel,
-        [int]$MaxTokens = 256
+        [int]$MaxTokens = 256,
+        [switch]$Raw
     )
     begin {
-        if (-not $Model) {
-            $Model = "gpt-3.5-turbo-0613"
-        }
         $jsonmsg = @()
         # sometimes it disappears?
         if (-not $Message) {
@@ -61,6 +72,15 @@ function Invoke-TuneChat {
         }
 
         Write-Verbose "Asking: $Message"
-        (Invoke-OpenAIAPI @params).choices.message.content
+        if ($Raw) {
+            Invoke-OpenAIAPI @params
+        } else {
+            $results = Invoke-OpenAIAPI @params
+            Write-Verbose "Prompt tokens: $($results.usage.prompt_tokens)"
+            Write-Verbose "Completion tokens: $($results.usage.completion_tokens)"
+            Write-Verbose "Total tokens: $($results.usage.total_tokens)"
+
+            $results.choices.message.content
+        }
     }
 }

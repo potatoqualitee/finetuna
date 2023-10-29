@@ -37,3 +37,5 @@ $script:modelmapping = @{
     textdavinci003      = 'p50k_base'
     davinci             = 'r50k_base'
 }
+
+$script:currentmodel = "gpt-3.5-turbo-0613"
