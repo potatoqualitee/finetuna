@@ -102,9 +102,19 @@ function Test-TuneFile {
                 foreach ($msg in $line) {
                     $lineCounter++
                     $msgCounter = 0
+                    if (-not ($msg.messages.role -contains "assistant")) {
+                        $isValid = $false
+                        [PSCustomObject]@{
+                            FileName = $basename
+                            IsValid  = $false
+                            Comment  = "Missing 'assistant' role at $lineCounter"
+                        }
+                    }
+
                     foreach ($message in $msg.messages) {
                         $msgCounter++
                         Write-Verbose "Processing line $lineCounter.$msgCounter"
+
                         if (-not $message.role) {
                             $isValid = $false
                             [PSCustomObject]@{
