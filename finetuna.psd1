@@ -15,7 +15,7 @@
     ModuleVersion = '1.0.1'
 
     # Minimum PowerShell version
-    PowerShellVersion = '3.0'
+    PowerShellVersion = '5.1'
 
     # ID used to uniquely identify this module
     GUID = '3dc00ef4-ff85-48c9-8701-b96aa91cfa99'
@@ -36,23 +36,29 @@
     )
 
     # Assemblies that must be loaded prior to importing this module
+    RequiredAssemblies = @(
+        "./lib/SharpToken.dll"
+    )
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @(
-        'Invoke-TuneChat',
+    FunctionsToExport  = @(
         'Get-TuneFile',
         'Get-TuneFileContent',
+        'Get-TuneJob',
+        'Get-TuneJobEvent',
+        'Get-TuneModel',
+        'Get-TuneModelDefault',
+        'Invoke-TuneChat',
+        'Measure-TuneToken',
+        'New-TuneModel',
+        'Remove-TuneFile',
+        'Remove-TuneModel',
+        'Request-TuneFileReview',
         'Send-TuneFile',
+        'Set-TuneModelDefault',
         'Start-TuneJob',
         'Stop-TuneJob',
-        'Get-TuneJob',
-        'Remove-TuneFile',
-        'Get-TuneJobEvent',
-        'New-TuneModel',
-        'Get-TuneModel',
-        'Remove-TuneModel',
-        'Set-TuneModelDefault',
-        'Get-TuneModelDefault'
+        'Test-TuneFile'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

@@ -35,7 +35,8 @@ function Send-TuneFile {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
-        [string[]]$FilePath
+        [ValidateScript({ return (Test-Path $_) })]
+        [System.IO.FileInfo[]]$FilePath
     )
     process {
         foreach ($file in $FilePath) {
@@ -69,7 +70,15 @@ function Send-TuneFile {
                 }
 
                 if ($extension -eq ".jsonl") {
-                    $tempFile = $file
+                    Write-Verbose "Resolving $file"
+                    $tp = Join-Path -Path $pwd -ChildPath $file
+                    $tempFile = (Get-ChildItem $tp -ErrorAction SilentlyContinue).FullName
+                    Write-Verbose "Got tempfile $tempfile"
+
+                    if (-not $tempfile) {
+                        $tempfile = $file
+                    }
+                    Write-Verbose "It's a jsonl, got $tempfile"
                 } else {
                     # Invoke-RestMethod -File requires a physical file.
                     $tempFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath "$basename.jsonl"
@@ -90,6 +99,7 @@ function Send-TuneFile {
                 $uri = "https://api.openai.com/v1/files"
 
                 if ($PSVersionTable.PSVersion.Major -le 5) {
+                    Write-Verbose "Using PowerShell 5.1 multipart/form-data workaround, processing $tempFile"
                     $fileBytes = [System.IO.File]::ReadAllBytes($tempFile)
                     $fileEnc = [System.Text.Encoding]::GetEncoding('UTF-8').GetString($fileBytes)
                     $boundary = [System.Guid]::NewGuid().ToString()
@@ -130,7 +140,7 @@ function Send-TuneFile {
 
                 Invoke-RestMethod2 @params
 
-                if ($tempfile -ne $file) {
+                if ((Get-ChildItem $tempfile -ErrorAction SilentlyContinue).FullName -ne (Get-ChildItem $file -ErrorAction SilentlyContinue).FullName) {
                     # Delete the temporary .jsonl file
                     Remove-Item -Path $tempFile -Verbose
                 }

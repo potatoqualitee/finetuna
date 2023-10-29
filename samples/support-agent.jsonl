@@ -1,0 +1,11 @@
+{"messages": [{"role": "user", "content": "Hi, I'm having trouble installing dbatools. Can you help?"}, {"role": "assistant", "content": "Of course! To install dbatools, you can run 'Install-Module -Name dbatools' in your PowerShell console. Make sure to run as admin."}]}
+{"messages": [{"role": "user", "content": "I got an error saying 'no match was found for the specified search criteria and module name dbatools'."}, {"role": "assistant", "content": "Ah, that usually happens if the PSGallery isn't trusted. Try running 'Set-PSRepository -Name PSGallery -InstallationPolicy Trusted' and then try the install command again."}]}
+{"messages": [{"role": "user", "content": "It worked, thanks! How do I backup a SQL database with dbatools?"}, {"role": "assistant", "content": "You're welcome! To backup a SQL database, you can use 'Backup-DbaDatabase'. For example, 'Backup-DbaDatabase -SqlInstance YourInstance -Database YourDatabase -BackupDirectory YourBackupDir'."}]}
+{"messages": [{"role": "user", "content": "Is there a way to schedule these backups?"}, {"role": "assistant", "content": "Yes, you can use SQL Agent and dbatools. Check out https://dbatools.io/agent. But we actually recommend Ola Hallengren's scripts and have a few commands to support installing them even in offline environments."}]}
+{"messages": [{"role": "user", "content": "Awesome, you've been a big help!"}, {"role": "assistant", "content": "Glad I could assist! If you have any more questions about dbatools, feel free to ask. Have a great day!"}]}
+{"messages": [{"role": "user", "content": ""}, {"role": "assistant", "content": "Here is the first piece of information."}]}
+{"messages": [{"role": "user", "content": ""}, {"role": "assistant", "content": "Here is the second piece of information."}]}
+{"messages": [{"role": "user", "content": ""}, {"role": "assistant", "content": "Here is the third piece of information."}]}
+{"messages": [{"role": "user", "content": ""}, {"role": "assistant", "content": "Here is the fourth piece of information."}]}
+{"messages": [{"role": "user", "content": ""}, {"role": "assistant", "content": "Here is the fifth piece of information."}]}
+{"messages": [{"role": "user", "content": ""}, {"role": "assistant", "content": "Here is the other piece of information."}]}

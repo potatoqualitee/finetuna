@@ -27,3 +27,15 @@ Set-Alias -Name Invoke-TunedChat -Value Invoke-TuneChat
 Set-Alias -Name Create-CustomModel -Value New-TuneModel
 
 $ErrorActionPreference = "Stop"
+
+$script:modelmapping = @{
+    gpt4                = 'cl100k_base'
+    gpt35turbo          = 'cl100k_base'
+    textembeddingada002 = 'cl100k_base'
+    codex               = 'p50k_base'
+    textdavinci002      = 'p50k_base'
+    textdavinci003      = 'p50k_base'
+    davinci             = 'r50k_base'
+}
+
+$script:currentmodel = "gpt-3.5-turbo-0613"
