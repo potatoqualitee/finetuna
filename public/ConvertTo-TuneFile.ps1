@@ -6,25 +6,43 @@ function ConvertTo-TuneFile {
         .DESCRIPTION
             This function takes various input types and converts them to JSONL format. Each line or row becomes an "assistant" message in the JSONL.
 
+            This command is under development and made me realize that they really mean it when they say that you gotta have good data for your training model. This probably will make bad data.
+
         .PARAMETER InputObject
             The input to be converted. Can be a file path, FileInfo object, or a PSCustomObject.
 
         .PARAMETER SystemContent
             The system message for the JSONL file.
 
+        .PARAMETER Include
+            When converting a module, include examples in the JSONL file.
+
+            Values include: Synopsis, Description, Parameters, Parameters
+
+        .EXAMPLE
+            Import-Module dbatools
+            Get-Module dbatools | ConvertTo-TuneFile -SystemContent "You are a friendly dbatools support chatbot and PowerShell expert who helps people find the commands they need"
+
+            This example demonstrates how to convert a dbatools module into a Tune file, defining the chatbot's persona as a friendly dbatools support expert.
+
         .EXAMPLE
             ConvertTo-TuneFile -InputObject C:\path\to\file.txt -SystemContent 'You are a friendly dbatools and PowerShell expert who offers tech support to DBAs and Systems Engineers'
 
+            This example shows how to convert a text file into a Tune file, defining the chatbot's persona as a friendly tech support expert for dbatools and PowerShell.
+
         .EXAMPLE
             ConvertTo-TuneFile -InputObject C:\path\to\file.csv -SystemContent 'You are a chatbot'
-    #>
 
+            This example demonstrates converting a CSV file into a Tune file, with a simple system content defining the chatbot's persona.
+    #>
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
         [psobject[]]$InputObject,
         [Parameter(Mandatory)]
-        [string]$SystemContent
+        [string]$SystemContent,
+        [ValidateSet('Synopsis', 'Description', 'Parameters', 'Examples')]
+        [string[]]$Include = @( 'Synopsis', 'Description' )
     )
     process {
         $null = $PSDefaultParameterValues['*:Compress'] = $true
@@ -117,7 +135,7 @@ function ConvertTo-TuneFile {
                     $outputFilePath = Join-Path -Path $pwd -ChildPath "$($object.Name).jsonl"
                     $jsonlContent = New-Object System.Collections.ArrayList
 
-                    $commands = Get-Command -Module $object.Name
+                    $commands = Get-Command -Module $object.Name | Select-Object -First 10
                     $commandCount = $commands.Count
                     $i = 0
 
@@ -133,58 +151,100 @@ function ConvertTo-TuneFile {
                         Write-Progress @progress
                         $commandHelp = Get-Help -Name $commandname
 
-                        # For Parameters
-                        $params = $commandHelp.Parameters.Parameter
-                        foreach ($param in $params) {
-                            Write-Verbose "Processing parameter: $($param.name)"
-                            $userQuestion = "What is the $($param.name) parameter for the $($command.Name) for?"
-                            if ($param.description) {
+                        # For Synopsis
+                        if ($Include -contains 'Synopsis') {
+                            $synopsis = $commandHelp.Synopsis
+                            if ($synopsis) {
+                                Write-Verbose "Processing synopsis"
+                                $userQuestion = "What is the $($command.Name) command for?"
                                 $json = @{
                                     messages = @(
                                         @{ role = 'system'; content = $SystemContent },
                                         @{ role = 'user'; content = $userQuestion },
-                                        @{ role = 'assistant'; content = $param.description[0].Text }
+                                        @{ role = 'assistant'; content = $synopsis }
                                     )
                                 } | ConvertTo-Json
                                 $null = $jsonlContent.Add($json)
                             } else {
-                                Write-Verbose "No description found for $($param.name)"
+                                Write-Verbose "No synopsis found for $($command.Name)"
+                            }
+                        }
+
+                        # For Description
+                        if ($Include -contains 'Description') {
+                            $description = $commandHelp.Description
+                            if ($description) {
+                                Write-Verbose "Processing description"
+                                $userQuestion = "What is the $($command.Name) command for?"
+                                $json = @{
+                                    messages = @(
+                                        @{ role = 'system'; content = $SystemContent },
+                                        @{ role = 'user'; content = $userQuestion },
+                                        @{ role = 'assistant'; content = $description }
+                                    )
+                                } | ConvertTo-Json
+                                $null = $jsonlContent.Add($json)
+                            } else {
+                                Write-Verbose "No description found for $($command.Name)"
+                            }
+                        }
+
+                        # For Parameters
+                        if ($Include -contains 'Parameters') {
+                            $params = $commandHelp.Parameters.Parameter
+                            foreach ($param in $params) {
+                                Write-Verbose "Processing parameter: $($param.name)"
+                                $userQuestion = "What is the $($param.name) parameter for the $($command.Name) for?"
+                                if ($param.description) {
+                                    $json = @{
+                                        messages = @(
+                                            @{ role = 'system'; content = $SystemContent },
+                                            @{ role = 'user'; content = $userQuestion },
+                                            @{ role = 'assistant'; content = $param.description[0].Text }
+                                        )
+                                    } | ConvertTo-Json
+                                    $null = $jsonlContent.Add($json)
+                                } else {
+                                    Write-Verbose "No description found for $($param.name)"
+                                }
                             }
                         }
 
                         # For Examples
-                        $examples = $commandHelp.Examples.Example
-                        foreach ($example in $examples) {
-                            if ($example.remarks) {
-                                Write-Verbose "Processing example"
-                                $userQuestion = "I want to $($example.remarks.text)"
-                                $json = @{
-                                    messages = @(
-                                        @{ role = 'system'; content = $SystemContent },
-                                        @{ role = 'user'; content = $userQuestion },
-                                        @{ role = 'assistant'; content = $($example.code) }
-                                    )
-                                } | ConvertTo-Json
-                                $null = $jsonlContent.Add($json)
-                            } else {
-                                Write-Verbose "No description found for $($example.code)"
+                        if ($Include -contains 'Examples') {
+                            $examples = $commandHelp.Examples.Example
+                            foreach ($example in $examples) {
+                                if ($example.remarks) {
+                                    Write-Verbose "Processing example"
+                                    $userQuestion = "I want to $($example.remarks.text)"
+                                    $json = @{
+                                        messages = @(
+                                            @{ role = 'system'; content = $SystemContent },
+                                            @{ role = 'user'; content = $userQuestion },
+                                            @{ role = 'assistant'; content = $($example.code) }
+                                        )
+                                    } | ConvertTo-Json
+                                    $null = $jsonlContent.Add($json)
+                                } else {
+                                    Write-Verbose "No description found for $($example.code)"
+                                }
                             }
                         }
                     }
                     $jsonlContent -join "`n" | Set-Content -Path $outputFilePath
                     $tokeninfo = $jsonlContent -join "`n" | Measure-TuneToken
-                    [System.Management.Automation.PSCustomObject]@{
-                        FilePath = (Get-ChildItem $outputFilePath).BaseName
-                        TokenCount = $tokeninfo.TokenCount
-                        TrainingCost = $tokeninfo.TrainingCost
-                        InputUsageCost = $tokeninfo.InputUsageCost
-                        OutputUsageCost = $tokeninfo.OutputUsageCost
-                    }
                 }
 
                 "Unsupported" {
                     throw "The type of InputObject is not supported."
                 }
+            }
+            [PSCustomObject]@{
+                FileName        = (Get-ChildItem $outputFilePath).Name
+                TokenCount      = $tokeninfo.TokenCount
+                TrainingCost    = $tokeninfo.TrainingCost
+                InputUsageCost  = $tokeninfo.InputUsageCost
+                OutputUsageCost = $tokeninfo.OutputUsageCost
             }
         }
     }
