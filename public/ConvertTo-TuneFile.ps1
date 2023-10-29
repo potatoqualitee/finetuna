@@ -17,7 +17,10 @@ function ConvertTo-TuneFile {
         .PARAMETER Include
             When converting a module, include examples in the JSONL file.
 
-            Values include: Synopsis, Description, Parameters, Parameters
+            Values include: Synopsis, Description, Parameters, Parameters, Examples, All
+
+        .PARAMETER ExcludeParameters
+            When converting a module, exclude the specified parameters from the JSONL file.
 
         .EXAMPLE
             Import-Module dbatools
@@ -41,9 +44,15 @@ function ConvertTo-TuneFile {
         [psobject[]]$InputObject,
         [Parameter(Mandatory)]
         [string]$SystemContent,
-        [ValidateSet('Synopsis', 'Description', 'Parameters', 'Examples')]
-        [string[]]$Include = @( 'Synopsis', 'Description' )
+        [ValidateSet('Synopsis', 'Description', 'Parameters', 'Examples', 'All')]
+        [string[]]$Include = @( 'Synopsis', 'Description' ),
+        [string[]]$ExcludeParameters
     )
+    begin {
+        if ($Include -contains 'All') {
+            $Include = @('Synopsis', 'Description', 'Parameters', 'Examples')
+        }
+    }
     process {
         $null = $PSDefaultParameterValues['*:Compress'] = $true
         foreach ($object in $InputObject) {
@@ -134,12 +143,12 @@ function ConvertTo-TuneFile {
                 "module" {
                     $outputFilePath = Join-Path -Path $pwd -ChildPath "$($object.Name).jsonl"
                     $jsonlContent = New-Object System.Collections.ArrayList
-
-                    $commands = Get-Command -Module $object.Name | Select-Object -First 10
+                    $commands = Get-Command -Module $object.Name
                     $commandCount = $commands.Count
                     $i = 0
 
                     foreach ($command in $commands) {
+                        $messageBlocks = New-Object System.Collections.ArrayList
                         $commandname = $command.Name
                         Write-Verbose "Processing command: $commandname"
                         $i++
@@ -150,21 +159,18 @@ function ConvertTo-TuneFile {
                         }
                         Write-Progress @progress
                         $commandHelp = Get-Help -Name $commandname
+                        $null = $messageBlocks.Add(@{ role = 'system'; content = $SystemContent })
 
                         # For Synopsis
                         if ($Include -contains 'Synopsis') {
                             $synopsis = $commandHelp.Synopsis
                             if ($synopsis) {
-                                Write-Verbose "Processing synopsis"
-                                $userQuestion = "What is the $($command.Name) command for?"
-                                $json = @{
-                                    messages = @(
-                                        @{ role = 'system'; content = $SystemContent },
-                                        @{ role = 'user'; content = $userQuestion },
-                                        @{ role = 'assistant'; content = $synopsis }
-                                    )
-                                } | ConvertTo-Json
-                                $null = $jsonlContent.Add($json)
+                                Write-Verbose "Processing Command synopsis"
+                                if ($IncludeSystemOnAll) {
+                                    $null = $messageBlocks.Add(@{ role = 'system'; content = $SystemContent })
+                                }
+                                $null = $messageBlocks.Add(@{ role = 'user'; content = "Can you tell me what the $($commandHelp.Name) command does?" })
+                                $null = $messageBlocks.Add(@{ role = 'assistant'; content = ($synopsis -join "`n") })
                             } else {
                                 Write-Verbose "No synopsis found for $($command.Name)"
                             }
@@ -175,15 +181,11 @@ function ConvertTo-TuneFile {
                             $description = $commandHelp.Description
                             if ($description) {
                                 Write-Verbose "Processing description"
-                                $userQuestion = "What is the $($command.Name) command for?"
-                                $json = @{
-                                    messages = @(
-                                        @{ role = 'system'; content = $SystemContent },
-                                        @{ role = 'user'; content = $userQuestion },
-                                        @{ role = 'assistant'; content = $description }
-                                    )
-                                } | ConvertTo-Json
-                                $null = $jsonlContent.Add($json)
+                                if ($IncludeSystemOnAll) {
+                                    $null = $messageBlocks.Add(@{ role = 'system'; content = $SystemContent })
+                                }
+                                $null = $messageBlocks.Add(@{ role = 'user'; content = "What is the $($command.Name) command for?" })
+                                $null = $messageBlocks.Add(@{ role = 'assistant'; content = ($description.Text -join "`n") })
                             } else {
                                 Write-Verbose "No description found for $($command.Name)"
                             }
@@ -193,17 +195,14 @@ function ConvertTo-TuneFile {
                         if ($Include -contains 'Parameters') {
                             $params = $commandHelp.Parameters.Parameter
                             foreach ($param in $params) {
+                                if ($param.name -in $ExcludeParameters) { continue }
                                 Write-Verbose "Processing parameter: $($param.name)"
-                                $userQuestion = "What is the $($param.name) parameter for the $($command.Name) for?"
                                 if ($param.description) {
-                                    $json = @{
-                                        messages = @(
-                                            @{ role = 'system'; content = $SystemContent },
-                                            @{ role = 'user'; content = $userQuestion },
-                                            @{ role = 'assistant'; content = $param.description[0].Text }
-                                        )
-                                    } | ConvertTo-Json
-                                    $null = $jsonlContent.Add($json)
+                                    if ($IncludeSystemOnAll) {
+                                        $null = $messageBlocks.Add(@{ role = 'system'; content = $SystemContent })
+                                    }
+                                    $null = $messageBlocks.Add(@{ role = 'user'; content = "What is the $($param.name) parameter for the $($command.Name) for?" })
+                                    $null = $messageBlocks.Add(@{ role = 'assistant'; content = $param.description[0].Text })
                                 } else {
                                     Write-Verbose "No description found for $($param.name)"
                                 }
@@ -216,23 +215,27 @@ function ConvertTo-TuneFile {
                             foreach ($example in $examples) {
                                 if ($example.remarks) {
                                     Write-Verbose "Processing example"
-                                    $userQuestion = "I want to $($example.remarks.text)"
-                                    $json = @{
-                                        messages = @(
-                                            @{ role = 'system'; content = $SystemContent },
-                                            @{ role = 'user'; content = $userQuestion },
-                                            @{ role = 'assistant'; content = $($example.code) }
-                                        )
-                                    } | ConvertTo-Json
-                                    $null = $jsonlContent.Add($json)
+                                    if ($IncludeSystemOnAll) {
+                                        $null = $messageBlocks.Add(@{ role = 'system'; content = $SystemContent })
+                                    }
+                                    $null = $messageBlocks.Add(@{ role = 'user'; content = "I want to $($example.remarks.text)" })
+                                    $null = $messageBlocks.Add(@{ role = 'assistant'; content = $($example.code) })
                                 } else {
                                     Write-Verbose "No description found for $($example.code)"
                                 }
                             }
                         }
+
+                        $jsontext = @{
+                            messages = $messageBlocks
+                        }
+
+                        $json = $jsontext | ConvertTo-Json -Depth 3
+                        $null = $jsonlContent.Add($json)
                     }
+
                     $jsonlContent -join "`n" | Set-Content -Path $outputFilePath
-                    $tokeninfo = $jsonlContent -join "`n" | Measure-TuneToken
+                    $tokeninfo = Get-Content -Path $outputFilePath | Measure-TuneToken
                 }
 
                 "Unsupported" {

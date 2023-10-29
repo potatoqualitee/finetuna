@@ -114,12 +114,30 @@ function Test-TuneFile {
                             }
                         }
 
+                        if ($message.role -is [array]) {
+                            $isValid = $false
+                            [PSCustomObject]@{
+                                FileName = $basename
+                                IsValid  = $false
+                                Comment  = "'role' key in 'messages' at line $lineCounter.$msgCounter is an array, but must be a string"
+                            }
+                        }
+
                         if (-not $message.content) {
                             $isValid = $false
                             [PSCustomObject]@{
                                 FileName = $basename
                                 IsValid  = $false
                                 Comment  = "Missing 'content' key in 'messages' at line $lineCounter.$msgCounter"
+                            }
+                        }
+
+                        if ($message.content -is [array]) {
+                            $isValid = $false
+                            [PSCustomObject]@{
+                                FileName = $basename
+                                IsValid  = $false
+                                Comment  = "'content' key in 'messages' at line $lineCounter.$msgCounter is an array, but must be a string"
                             }
                         }
                     }
