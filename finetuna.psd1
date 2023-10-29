@@ -41,28 +41,25 @@
     )
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @(
-        'Invoke-TuneChat',
+    FunctionsToExport  = @(
+        'ConvertTo-TuneFile',
         'Get-TuneFile',
         'Get-TuneFileContent',
+        'Get-TuneJob',
+        'Get-TuneJobEvent',
+        'Get-TuneModel',
+        'Get-TuneModelDefault',
+        'Invoke-TuneChat',
+        'Measure-TuneToken',
+        'New-TuneModel',
+        'Remove-TuneFile',
+        'Remove-TuneModel',
+        'Request-TuneFileReview',
         'Send-TuneFile',
-        'Test-TuneFile',
+        'Set-TuneModelDefault',
         'Start-TuneJob',
         'Stop-TuneJob',
-        'Get-TuneJob',
-        'Remove-TuneFile',
-        'Get-TuneJobEvent',
-        'New-TuneModel',
-        'Get-TuneModel',
-        'Remove-TuneModel',
-        'Set-TuneModelDefault',
-        'Get-TuneModelDefault',
-        'Request-TuneFileReview',
-        'ConvertTo-TuneFile'
-        'Get-TuneModelDefault',
-        'Request-TuneFileReview',
-        'ConvertTo-TuneFile',
-        'Measure-TuneToken'
+        'Test-TuneFile'
     )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

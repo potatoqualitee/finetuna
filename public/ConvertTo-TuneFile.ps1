@@ -172,6 +172,14 @@ function ConvertTo-TuneFile {
                         }
                     }
                     $jsonlContent -join "`n" | Set-Content -Path $outputFilePath
+                    $tokeninfo = $jsonlContent -join "`n" | Measure-TuneToken
+                    [System.Management.Automation.PSCustomObject]@{
+                        FilePath = (Get-ChildItem $outputFilePath).BaseName
+                        TokenCount = $tokeninfo.TokenCount
+                        TrainingCost = $tokeninfo.TrainingCost
+                        InputUsageCost = $tokeninfo.InputUsageCost
+                        OutputUsageCost = $tokeninfo.OutputUsageCost
+                    }
                 }
 
                 "Unsupported" {
