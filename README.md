@@ -138,3 +138,5 @@ Get-TuneModel -Custom | Remove-TuneModel -Confirm:$false
 ```
 
 Sorry these docs could be better, I gotta work on a presentation so I'll fix them later.
+
+Learn more here: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/fine-tuning-considerations
