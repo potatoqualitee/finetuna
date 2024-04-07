@@ -12,7 +12,7 @@
     RootModule = 'finetuna.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.3'
+    ModuleVersion = '1.0.4'
 
     # Minimum PowerShell version
     PowerShellVersion = '5.1'
@@ -24,14 +24,14 @@
     Author = 'Chrissy LeMaire'
 
     # Copyright statement for this module
-    Copyright = 'MIT (c) 2023 Chrissy LeMaire. All rights reserved.'
+    Copyright = 'MIT (c) 2024 Chrissy LeMaire. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'OpenAI Fine Tuner'
 
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules = @(
-        'PowerShellAI'
+        'PowerShellAIAssistant'
         'ReadPDF'
     )
 
@@ -40,7 +40,6 @@
         "./lib/SharpToken.dll"
     )
 
-    # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport  = @(
         'Get-TuneFile',
         'Get-TuneFileContent',
@@ -49,6 +48,7 @@
         'Get-TuneModel',
         'Get-TuneModelDefault',
         'Invoke-TuneChat',
+        'Invoke-TuneBotChat',
         'Measure-TuneToken',
         'New-TuneModel',
         'Remove-TuneFile',

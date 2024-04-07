@@ -52,10 +52,16 @@ function Measure-TuneToken {
         $tokenCount = $encoded.Count
 
         # Pricing details based on the provided table
+        # https://openai.com/pricing
         $pricingDetails = @{
-            'cl100k_base' = @{ Training = 0.0080; InputUsage = 0.0120; OutputUsage = 0.0160 }
-            'p50k_base'   = @{ Training = 0.0060; InputUsage = 0.0120; OutputUsage = 0.0120 }
-            'r50k_base'   = @{ Training = 0.0004; InputUsage = 0.0016; OutputUsage = 0.0016 }
+            'cl100k_base'              = @{ Training = 0.0080; InputUsage = 0.0030; OutputUsage = 0.0060 }
+            'p50k_base'                = @{ Training = 0.0060; InputUsage = 0.0120; OutputUsage = 0.0120 }
+            'r50k_base'                = @{ Training = 0.0004; InputUsage = 0.0016; OutputUsage = 0.0016 }
+            'davinci-002'              = @{ Training = $null; InputUsage = 0.0030; OutputUsage = 0.0030 }
+            'babbage-002'              = @{ Training = $null; InputUsage = 0.0030; OutputUsage = 0.0030 }
+            'text-embedding-3-small'   = @{ Training = $null; InputUsage = 0.00002; OutputUsage = $null }
+            'text-embedding-3-large'   = @{ Training = $null; InputUsage = 0.00013; OutputUsage = $null }
+            'text-embedding-ada-002'   = @{ Training = $null; InputUsage = 0.0001; OutputUsage = $null }
         }
 
         $trainingCost = $tokenCount * ($pricingDetails[$encodingName].Training / 1000)

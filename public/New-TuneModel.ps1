@@ -122,7 +122,7 @@ function New-TuneModel {
             # Use ChatGPT to inform the user about the new model
             Start-Sleep 25
             $params = @{
-                Message       = "Can you say 'Say hello to your new model, $script:currentmodel' exactly like that?"
+                Message       = "Respond only saying: 'Say hello to your new model, $script:currentmodel'"
                 Model         = $script:currentmodel
                 ErrorAction   = "SilentlyContinue"
                 ErrorVariable = "weberror"
@@ -133,7 +133,7 @@ function New-TuneModel {
                 Start-Sleep 10
 
                 $params = @{
-                    Message     = "Can you say 'Say hello to your new model, $script:currentmodel' exactly like that?"
+                    Message     = "Respond only saying: 'Say hello to your new model, $script:currentmodel'"
                     Model         = $script:currentmodel
                     ErrorAction   = "SilentlyContinue"
                     ErrorVariable = "weberror2"
