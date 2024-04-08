@@ -48,7 +48,6 @@
         'Get-TuneModel',
         'Get-TuneModelDefault',
         'Invoke-TuneChat',
-        'Invoke-TuneBotChat',
         'Measure-TuneToken',
         'New-TuneModel',
         'Remove-TuneFile',
