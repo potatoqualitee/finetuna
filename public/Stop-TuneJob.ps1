@@ -41,7 +41,7 @@ function Stop-TuneJob {
         foreach ($jobid in $Id) {
             if ($PSCmdlet.ShouldProcess("Job ID: $jobid", 'Cancel')) {
                 $params = @{
-                    Uri    = "https://api.openai.com/v1/fine_tuning/jobs/$jobid/cancel"
+                    Uri    = "$script:baseUrl/fine_tuning/jobs/$jobid/cancel"
                     Method = "POST"
                 }
                 Invoke-RestMethod2 @params

@@ -96,7 +96,7 @@ function Send-TuneFile {
                 # PowerShell 5.1 needs to create a manual boundary
                 # for multipart/form-data
 
-                $uri = "https://api.openai.com/v1/files"
+                $uri = "$script:baseUrl/files"
 
                 if ($PSVersionTable.PSVersion.Major -le 5) {
                     Write-Verbose "Using PowerShell 5.1 multipart/form-data workaround, processing $tempFile"

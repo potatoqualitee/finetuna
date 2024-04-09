@@ -24,7 +24,7 @@ function Get-TuneJobEvent {
         foreach ($jobid in $Id) {
             $params = @{
                 #https://api.openai.com/v1/fine_tuning/jobs/ftjob-abc123/events
-                Uri    = "https://api.openai.com/v1/fine_tuning/jobs/$jobid/events?limit=1000"
+                Uri    = "$script:baseUrl/fine_tuning/jobs/$jobid/events?limit=1000"
                 Method     = "GET"
             }
             Invoke-RestMethod2 @params

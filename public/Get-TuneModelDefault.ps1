@@ -15,7 +15,7 @@ function Get-TuneModelDefault {
     param ()
     process {
         if (-not $script:currentModel) {
-            $script:currentModel = "gpt-4-0613"
+            $script:currentModel = "gpt-3.5-turbo-0125"
         }
         $script:currentModel
     }

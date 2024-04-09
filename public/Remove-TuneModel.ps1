@@ -34,7 +34,7 @@ function Remove-TuneModel {
     )
     process {
         foreach ($modelname in $Model) {
-            $url = "https://api.openai.com/v1/models/$modelname"
+            $url = "$script:baseUrl/models/$modelname"
             if ($PSCmdlet.ShouldProcess("Model: $modelname", 'Remove')) {
                 Write-Verbose "Removing $modelname"
                 $params = @{

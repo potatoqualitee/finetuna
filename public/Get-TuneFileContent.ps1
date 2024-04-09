@@ -24,7 +24,7 @@ function Get-TuneFileContent {
     process {
         foreach ($fileid in $Id) {
             $params = @{
-                Uri    = "https://api.openai.com/v1/files/$fileid/content"
+                Uri    = "$script:baseUrl/files/$fileid/content"
                 Method = "GET"
             }
             Invoke-RestMethod2 @params

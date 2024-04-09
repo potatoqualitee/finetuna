@@ -66,16 +66,16 @@ function Invoke-TuneChat {
         Write-Verbose "Body: $($body | ConvertTo-Json)"
         # Create a hashtable containing the parameters
         $params = @{
-            Uri        = "https://api.openai.com/v1/chat/completions"
+            Uri        = "$script:baseUrl/chat/completions"
             Method     = "POST"
             Body       = ($body | ConvertTo-Json)
         }
 
         Write-Verbose "Asking: $Message"
         if ($Raw) {
-            Invoke-OpenAIAPI @params
+            Invoke-RestMethod2 @params
         } else {
-            $results = Invoke-OpenAIAPI @params
+            $results = Invoke-RestMethod2 @params
             Write-Verbose "Prompt tokens: $($results.usage.prompt_tokens)"
             Write-Verbose "Completion tokens: $($results.usage.completion_tokens)"
             Write-Verbose "Total tokens: $($results.usage.total_tokens)"

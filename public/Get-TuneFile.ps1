@@ -27,7 +27,7 @@ function Get-TuneFile {
     process {
         if ($Id) {
             foreach ($fileid in $Id) {
-                $url = "https://api.openai.com/v1/files/$fileid"
+                $url = "$script:baseUrl/files/$fileid"
                 Write-Verbose "Getting $url"
                 $params = @{
                     Uri    = $url
@@ -36,7 +36,7 @@ function Get-TuneFile {
                 Invoke-RestMethod2 @params
             }
         } else {
-            $url = "https://api.openai.com/v1/files"
+            $url = "$script:baseUrl/files"
             Write-Verbose "Getting $url"
             $params = @{
                 Uri        = $url
