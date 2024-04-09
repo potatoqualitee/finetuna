@@ -47,6 +47,7 @@
         'Get-TuneJobEvent',
         'Get-TuneModel',
         'Get-TuneModelDefault',
+        'Get-TuneProvider',
         'Invoke-TuneChat',
         'Measure-TuneToken',
         'New-TuneModel',
