@@ -28,7 +28,7 @@ function Measure-TuneToken {
         [Parameter(Mandatory, ValueFromPipeline)]
         [Alias('String')]
         [string[]]$InputObject,
-        [ValidateSet('cl100k_base', 'p50k_base', 'r50k_base', 'gpt4', 'gpt35turbo', 'textembeddingada002', 'codex', 'textdavinci002', 'textdavinci003', 'davinci')]
+        [ValidateSet('cl100k_base', 'p50k_base', 'r50k_base', 'textembeddingada002', 'codex', 'textdavinci002', 'textdavinci003', 'davinci')]
         [string]$Model = 'cl100k_base'
     )
     begin {
