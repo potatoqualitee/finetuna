@@ -5,6 +5,7 @@ function Compare-TuneEmbedding {
 
     .DESCRIPTION
     The Compare-TuneEmbedding cmdlet takes a query embedding vector and searches for the most similar text embeddings within a collection.
+
     It returns the top N most similar results based on cosine similarity.
 
     .PARAMETER Query
@@ -39,7 +40,7 @@ function Compare-TuneEmbedding {
         [double[]]$QueryEmbedding,
         [Parameter(Mandatory)]
         [hashtable]$Embeddings,
-        [int]$Top = 10,
+        [int]$Top = 25,
         [ValidateSet('Cosine', 'Euclidean', 'Pearson', 'SquaredEuclidean')]
         [string]$Type = 'Cosine'
     )
