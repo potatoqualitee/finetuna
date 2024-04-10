@@ -10,9 +10,6 @@ function New-TuneEmbedding {
     .PARAMETER Text
     The text to create an embedding for.
 
-    .PARAMETER Query
-    Optional. A text search query to create an embedding for. Use this when you want to search for similar text rather than compare text similarity.
-
     .PARAMETER Model
     Optional. The name of the embedding model to use. Default is "text-embedding-ada-002".
 
@@ -25,43 +22,48 @@ function New-TuneEmbedding {
     "The quick brown fox" | New-TuneEmbedding
 
     This command pipes text to New-TuneEmbedding to create an embedding vector.
-
-    .EXAMPLE
-    New-TuneEmbedding -Query "brown fox"
-
-    This command creates a query embedding vector that can be used to search for semantically similar text.
 #>
     [CmdletBinding()]
     param (
-        [Parameter(ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipeline)]
         [string]$Text,
-        [string]$Query,
         [ValidateSet(
             "text-embedding-ada-002",
-            "text-search-ada-doc-001",
-            "text-search-ada-query-001",
-            "text-similarity-ada-001",
-            "text-similarity-babbage-001",
-            "text-similarity-curie-001",
-            "text-similarity-davinci-001"
+            "text-embedding-3-small",
+            "text-embedding-3-large"
         )]
-        [string]$Model,
+        [string]$Model = "text-embedding-3-small",
         [switch]$Raw
     )
     begin {
-        if (-not $Model) {
-            if ($Text) {
-                $Model = "text-embedding-ada-002"
-            } else {
-                $Model = "text-search-ada-query-001"
-            }
+        function Repair-Text {
+            param (
+                [string]$Text
+            )
+
+            # Lowercase the text
+            $processedText = $Text.ToLower()
+
+            # Define a list of stop words. You might need to expand this list based on your context.
+            $stopWords = @("the", "is", "at", "which", "on", "and", "a", "to")
+
+            # Remove stop words
+            $processedText = $processedText.Split(' ').Where({ $PSItem -notin $stopWords })
+            $processedText = $processedText -join ' '
+
+            # Remove special characters, preserving PowerShell-specific ones like '-', '_'
+            # Adjust the regex to keep hyphens and underscores
+            $processedText = $processedText -replace '[^\w\s\-_]', ''
+
+            return $processedText
         }
     }
     process {
+        $preprocessText = Repair-Text -Text $Text
         $url = "$script:baseUrl/embeddings"
         $body = @{
             model = $Model
-            input = if ($Text) { $Text } else { $Query }
+            input = $preprocessText
         } | ConvertTo-Json
 
         Write-Verbose "Creating embedding for: $body"
@@ -77,7 +79,7 @@ function New-TuneEmbedding {
         if ($Raw) {
             $result
         } else {
-            $result.data.embedding
+            $result.embedding
         }
     }
 }
