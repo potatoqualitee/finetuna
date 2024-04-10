@@ -22,24 +22,36 @@ function Invoke-RestMethod2 {
         [switch]$ProxyUseDefaultCredentials,
         [switch]$PassThru,
         [switch]$NoProxy,
-        [switch]$PreserveAuthorizationOnRedirect
+        [switch]$PreserveAuthorizationOnRedirect,
+        [bool]$Raw
     )
 
     $vbpref = $VerbosePreference
     $VerbosePreference = 'SilentlyContinue'
+
+    $israw = [bool]$Raw
+    $null = $PSBoundParameters.Remove("Raw")
+
     if (-not $script:WebSession) {
         Write-Verbose "Establishing Connection"
         $null = Connect-TuneService
     }
 
     $results = Invoke-RestMethod @PSBoundParameters
+    $VerbosePreference = $vbpref
 
-    if ($results.choices.message.content) {
+    Write-Verbose "Prompt tokens: $($results.usage.prompt_tokens)"
+    Write-Verbose "Completion tokens: $($results.usage.completion_tokens)"
+    Write-Verbose "Total tokens: $($results.usage.total_tokens)"
+
+    if ($israw) {
+        return $results
+    } elseif ($results.choices.message.content) {
+        $null = $script:jsonmsg.Add($results.choices.message)
         $results.choices.message.content
     } elseif ($results.data) {
         $results.data
     } else {
         $results
     }
-    $VerbosePreference = $vbpref
 }

@@ -43,22 +43,54 @@ function Invoke-TuneChat {
         [switch]$Raw
     )
     begin {
-        $jsonmsg = @()
+        if (-not $script:jsonmsg -or $env:NoPersistence -eq $true) {
+            $script:jsonmsg = New-Object System.Collections.ArrayList
+        }
+    }
+    process {
         # sometimes it disappears?
         if (-not $Message) {
             $Message = @("how's Potato?")
         }
-        foreach ($msg in $Message) {
-            $jsonmsg += @{
-                role    = "user"
-                content = $msg
+
+        $msgtoken = ($Message | Measure-TuneToken).TokenCount
+        $totaltoken = ($script:jsonmsg | Measure-TuneToken).TokenCount
+
+        if (($msgToken + $totalToken) -gt ($MaxTokens * 0.80)) {
+            $limit = $MaxTokens * 0.80
+            Write-Verbose "Token limit approaching, reducing cache"
+
+            # Calculate the excess tokens
+            $excessTokens = $msgToken + $totalToken - $limit
+
+            # Iterate through the oldest messages and remove them until the token count is within the limit
+            $removedTokens = 0
+            for ($i = $script:jsonmsg.Count - 1; $i -ge 0; $i--) {
+                $messageTokens = ($script:jsonmsg[$i] | Measure-TuneToken).TokenCount
+                $removedTokens += $messageTokens
+
+                # Remove the message if its tokens contribute to the excess
+                if ($removedTokens -gt $excessTokens) {
+                    $script:jsonmsg.RemoveRange(0, $i + 1)
+                    Write-Verbose "Removed $($i + 1) oldest messages to reduce token count"
+                    return
+                }
             }
         }
-    }
-    process {
+
+        foreach ($msg in $Message) {
+            # check for dupes
+            $last = $script:jsonmsg | Select-Object -Last 1 -Skip 1
+            if ($last.content -ne $msg) {
+                $null = $script:jsonmsg.Add(@{
+                        role    = "user"
+                        content = $msg
+                    })
+            }
+        }
         $body = @{
             model      = $Model
-            messages   = $jsonmsg
+            messages   = $script:jsonmsg
             max_tokens = $MaxTokens
         }
         Write-Verbose "Chatting using model $Model"
@@ -66,21 +98,13 @@ function Invoke-TuneChat {
         Write-Verbose "Body: $($body | ConvertTo-Json)"
         # Create a hashtable containing the parameters
         $params = @{
-            Uri        = "https://api.openai.com/v1/chat/completions"
+            Uri        = "$script:baseUrl/chat/completions"
             Method     = "POST"
             Body       = ($body | ConvertTo-Json)
+            Raw        = $Raw
         }
 
         Write-Verbose "Asking: $Message"
-        if ($Raw) {
-            Invoke-OpenAIAPI @params
-        } else {
-            $results = Invoke-OpenAIAPI @params
-            Write-Verbose "Prompt tokens: $($results.usage.prompt_tokens)"
-            Write-Verbose "Completion tokens: $($results.usage.completion_tokens)"
-            Write-Verbose "Total tokens: $($results.usage.total_tokens)"
-
-            $results.choices.message.content
-        }
+        Invoke-RestMethod2 @params
     }
 }

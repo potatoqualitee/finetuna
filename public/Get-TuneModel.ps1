@@ -39,7 +39,7 @@ function Get-TuneModel {
     process {
         if ($Model) {
             foreach ($modelname in $Model) {
-                $url = "https://api.openai.com/v1/models/$modelname"
+                $url = "$script:baseUrl/models/$modelname"
                 Write-Verbose "Getting $url"
                 $params = @{
                     Uri    = $url
@@ -55,7 +55,7 @@ function Get-TuneModel {
                 }
             }
         } else {
-            $url = "https://api.openai.com/v1/models"
+            $url = "$script:baseUrl/models"
             Write-Verbose "Getting $url"
             $params = @{
                 Uri    = $url

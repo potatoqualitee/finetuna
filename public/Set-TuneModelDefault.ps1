@@ -31,7 +31,7 @@ function Set-TuneModelDefault {
     param (
         [Parameter(ValueFromPipelineByPropertyName)]
         [Alias("ModelName", "model_name", "id")]
-        [string]$Model = "gpt-4-0613",
+        [string]$Model = "gpt-3.5-turbo-0125",
         [switch]$Latest
     )
     process {

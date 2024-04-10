@@ -40,7 +40,7 @@ function Remove-TuneFile {
         foreach ($fileid in $Id) {
             if ($PSCmdlet.ShouldProcess("File ID: $fileid", 'Remove')) {
                 $params = @{
-                    Uri    = "https://api.openai.com/v1/files/$fileid"
+                    Uri    = "$script:baseUrl/files/$fileid"
                     Method = "DELETE"
                 }
                 Invoke-RestMethod2 @params

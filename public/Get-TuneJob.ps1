@@ -38,7 +38,7 @@ function Get-TuneJob {
     process {
         if ($Id) {
             foreach ($jobid in $Id) {
-                $url = "https://api.openai.com/v1/fine_tuning/jobs/$jobid"
+                $url = "$script:baseUrl/fine_tuning/jobs/$jobid"
                 Write-Verbose "Getting $url"
                 $params = @{
                     Uri    = $url
@@ -52,7 +52,7 @@ function Get-TuneJob {
                 }
             }
         } else {
-            $url = "https://api.openai.com/v1/fine_tuning/jobs"
+            $url = "$script:baseUrl/fine_tuning/jobs"
             Write-Verbose "Getting $url"
             $params = @{
                 Uri    = $url

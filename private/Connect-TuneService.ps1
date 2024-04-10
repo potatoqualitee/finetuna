@@ -24,38 +24,61 @@ function Connect-TuneService {
 #>
     [CmdletBinding()]
     param(
-        [string]$ApiKey = $env:OpenAIKey,
+        [string]$Url = "$script:baseUrl/chat/completions",
         [ValidateSet("gpt-3.5-turbo", "babbage-002", "davinci-002")]
         [string]$Model = "gpt-3.5-turbo"
     )
 
-    # Validate the API key
-    if (-not $ApiKey) {
-        throw "API key is not set. Cannot connect to OpenAI API."
-    }
-
     # Set the headers for the WebSession
     $headers = @{
-        Authorization  = "Bearer $ApiKey"
         "Content-Type" = "application/json"
     }
-
-    # Test the connection
-    $url = "https://api.openai.com/v1/chat/completions"
 
     $body = @{
         model       = $Model
         messages    = @(@{
             role = "user"
-            content = "how's potato'"
+            content = "hi"
         })
         max_tokens = 5
     } | ConvertTo-Json
 
-    Write-Verbose "No connection yet, testing connection to OpenAI"
+    $Provider = Get-OAIProvider
+    $AzOAISecrets = Get-AzOAISecrets
+    switch ($Provider) {
+        'OpenAI' {
+            $headers['Authorization'] = "Bearer $env:OpenAIKey"
+        }
+
+        'AzureOpenAI' {
+            $headers['api-key'] = "$($AzOAISecrets.apiKEY)"
+
+            if ($Body -isnot [System.IO.Stream]) {
+                if ($null -ne $Body -and $Body.Contains("model") ) {
+                    $Body.model = $AzOAISecrets.deploymentName
+                }
+            }
+
+            $Url = $Url -replace $baseUrl, ''
+            if ($Url.EndsWith('/')) {
+                $Url = $Url.Substring(0, $Url.Length - 1)
+            }
+
+            $separator = '?'
+            if ($Url.Contains('?')) {
+                $separator = '&'
+            }
+            $Url = "{0}/openai{1}{2}api-version={3}" -f $AzOAISecrets.apiURI,
+            $Url,
+            $separator,
+            $AzOAISecrets.apiVersion
+        }
+    }
+
+    Write-Verbose "No connection yet, testing connection to API"
     $parms = @{
         Method          = "POST"
-        Uri             = $url
+        Uri             = $Url
         Headers         = $headers
         Body            = $body
         WebSession      = $null

@@ -54,7 +54,7 @@ function Start-TuneJob {
                 } | ConvertTo-Json
 
                 $params = @{
-                    Uri         = "https://api.openai.com/v1/fine_tuning/jobs"
+                    Uri         = "$script:baseUrl/fine_tuning/jobs"
                     Method      = "POST"
                     Body        = $body
                     ContentType = "application/json"
