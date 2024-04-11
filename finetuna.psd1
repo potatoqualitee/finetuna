@@ -37,8 +37,19 @@
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @(
-        "./lib/SharpToken.dll",
-        "./lib/MathNet.Numerics.dll"
+        "./lib/MathNet.Numerics.dll",,
+        "./lib/System.Collections.Immutable.dll",
+        "./lib/System.Memory.dll",
+        "./lib/Microsoft.ML.Core.dll",
+        "./lib/Microsoft.ML.CpuMath.dll",
+        "./lib/Microsoft.ML.Data.dll",
+        "./lib/Microsoft.ML.DataView.dll",
+        "./lib/Microsoft.ML.dll",
+        "./lib/Microsoft.ML.KMeansClustering.dll",
+        "./lib/Microsoft.ML.PCA.dll",
+        "./lib/Microsoft.ML.StandardTrainers.dll",
+        "./lib/Microsoft.ML.Transforms.dll",
+        "./lib/SharpToken.dll"
     )
 
     FunctionsToExport  = @(
