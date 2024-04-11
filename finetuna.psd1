@@ -42,6 +42,8 @@
     )
 
     FunctionsToExport  = @(
+        'Compare-Embedding',
+        'Get-Embedding',
         'Get-TuneFile',
         'Get-TuneFileContent',
         'Get-TuneJob',

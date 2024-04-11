@@ -1,10 +1,10 @@
-function Compare-TuneEmbedding {
+function Compare-Embedding {
 <#
     .SYNOPSIS
     Calculates the cosine similarity between two embedding vectors.
 
     .DESCRIPTION
-    The Compare-TuneEmbedding cmdlet takes a query embedding vector and searches for the most similar text embeddings within a collection.
+    The Compare-Embedding command takes a query embedding vector and searches for the most similar text embeddings within a collection.
 
     It returns the top N most similar results based on cosine similarity.
 
@@ -21,16 +21,16 @@ function Compare-TuneEmbedding {
     Optional. The number of top similar results to return. Default is 5.
 
     .EXAMPLE
-    $queryEmbedding = New-TuneEmbedding -Query "brown fox"
-    $embeddings = "The quick brown fox", "A lazy dog", "A cunning fox" | New-TuneEmbedding
-    Compare-TuneEmbedding -QueryEmbedding $queryEmbedding -Embeddings $embeddings
+    $queryEmbedding = Get-Embedding -Query "brown fox"
+    $embeddings = "The quick brown fox", "A lazy dog", "A cunning fox" | Get-Embedding
+    Compare-Embedding -QueryEmbedding $queryEmbedding -Embeddings $embeddings
 
     This command searches for the most similar text embeddings to the query "brown fox".
 
     .EXAMPLE
-    $queryEmbedding = New-TuneEmbedding -Query "playful dog"
-    $embeddings = Get-Content "descriptions.txt" | New-TuneEmbedding
-    Compare-TuneEmbedding -QueryEmbedding $queryEmbedding -Embeddings $embeddings -Top 3
+    $queryEmbedding = Get-Embedding -Query "playful dog"
+    $embeddings = Get-Content "descriptions.txt" | Get-Embedding
+    Compare-Embedding -QueryEmbedding $queryEmbedding -Embeddings $embeddings -Top 3
 
     This command searches through a collection of embeddings created from a text file and returns the top 3 most similar results to the query.
     #>
@@ -50,7 +50,7 @@ function Compare-TuneEmbedding {
         }
 
         if ($Query) {
-            $QueryEmbedding = New-TuneEmbedding -Text $Query
+            $QueryEmbedding = Get-Embedding -Text $Query
         }
 
         $queryVector = [MathNet.Numerics.LinearAlgebra.Double.DenseVector]::OfArray($QueryEmbedding)

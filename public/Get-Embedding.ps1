@@ -1,10 +1,10 @@
-function New-TuneEmbedding {
+function Get-Embedding {
 <#
     .SYNOPSIS
     Creates an embedding vector for the given text using the OpenAI API.
 
     .DESCRIPTION
-    The New-TuneEmbedding cmdlet sends text to the OpenAI API to create an embedding vector.
+    The Get-Embedding command sends text to the OpenAI API to create an embedding vector.
     Embedding vectors can be used to measure semantic similarity between pieces of text.
 
     .PARAMETER Text
@@ -14,14 +14,14 @@ function New-TuneEmbedding {
     Optional. The name of the embedding model to use. Default is "text-embedding-ada-002".
 
     .EXAMPLE
-    New-TuneEmbedding -Text "The quick brown fox jumps over the lazy dog"
+    Get-Embedding -Text "The quick brown fox jumps over the lazy dog"
 
     This command creates an embedding vector for the given text.
 
     .EXAMPLE
-    "The quick brown fox" | New-TuneEmbedding
+    "The quick brown fox" | Get-Embedding
 
-    This command pipes text to New-TuneEmbedding to create an embedding vector.
+    This command pipes text to Get-Embedding to create an embedding vector.
 #>
     [CmdletBinding()]
     param (
