@@ -37,10 +37,13 @@
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @(
-        "./lib/SharpToken.dll"
+        "./lib/SharpToken.dll",
+        "./lib/MathNet.Numerics.dll"
     )
 
     FunctionsToExport  = @(
+        'Compare-Embedding',
+        'Get-Embedding',
         'Get-TuneFile',
         'Get-TuneFileContent',
         'Get-TuneJob',
