@@ -8,8 +8,6 @@
 
 finetuna is designed to simplify the fine-tuning of OpenAI models. Train your models and interact with them—all through PowerShell.
 
-Coming soon: Import data from CSV and PDF files, automatically converting them to the required JSONL format. JSONL is hard as heck -- I had to end up using ChatGPT to fix mine. All online fixers are for plain ol' JSON.
-
 Right now, the awesome functionality is that you can pipe a whole directory of jsonl files into a command that trains a whole new model/bot on those files.
 
 ## Prerequisites
