@@ -57,7 +57,12 @@ function Compare-Embedding {
         $similarities = New-Object System.Collections.ArrayList
 
         foreach ($key in $Embeddings.Keys) {
-            $embeddingVector = [MathNet.Numerics.LinearAlgebra.Double.DenseVector]::OfArray($Embeddings[$key])
+            try {
+                $embeddingVector = [MathNet.Numerics.LinearAlgebra.Double.DenseVector]::OfArray($Embeddings[$key])
+            } catch {
+                Write-Verbose "Error with $key"
+                continue
+            }
             $similarity = 0
 
             switch ($Type) {

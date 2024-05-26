@@ -12,7 +12,7 @@
     RootModule = 'finetuna.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.4'
+    ModuleVersion = '1.0.5'
 
     # Minimum PowerShell version
     PowerShellVersion = '5.1'
@@ -30,10 +30,7 @@
     Description = 'OpenAI Fine Tuner'
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules = @(
-        'PowerShellAIAssistant'
-        'ReadPDF'
-    )
+    RequiredModules = @('PSAI')
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @(

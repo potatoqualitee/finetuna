@@ -54,8 +54,8 @@ function Get-Embedding {
             # Remove special characters, preserving PowerShell-specific ones like '-', '_'
             # Adjust the regex to keep hyphens and underscores
             $processedText = $processedText -replace '[^\w\s\-_]', ''
-
-            return $processedText
+            $processedText = $processedText.Replace("`t", " ")
+            $processedText.Replace("  ", " ")
         }
     }
     process {
