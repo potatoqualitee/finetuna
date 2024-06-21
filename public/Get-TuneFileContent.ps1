@@ -17,13 +17,18 @@ function Get-TuneFileContent {
 
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipelinebyPropertyName)]
         [Alias("FileId", "file_id")]
         [string[]]$Id
     )
     process {
         foreach ($fileId in $Id) {
-            Get-OpenAIFileContent -FileId $fileId
+            try {
+                Get-OpenAIFileContent -FileId $fileId
+            } catch {
+                Write-Warning $PSItem
+                continue
+            }
         }
     }
 }
