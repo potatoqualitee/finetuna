@@ -1,49 +1,40 @@
 function Start-TuneJob {
     <#
     .SYNOPSIS
-        Initiates model tuning using a specified file ID.
+    Starts a new fine-tuning job.
 
     .DESCRIPTION
-        This command accepts a file ID to start the model tuning process via a POST request to the OpenAI API.
+    Start-TuneJob initiates a new fine-tuning job using the specified file and model.
 
     .PARAMETER FileId
-        The file ID of the training file. This parameter allows manual specification of the file ID and can be piped in.
+    The file ID of the training file. This parameter allows manual specification of the file ID and can be piped in.
 
     .PARAMETER Model
-        The model to be used for tuning. Default is 'gpt-3.5-turbo-0613'. Your custom models can be reused, fa sho.
-
-    .PARAMETER WhatIf
-        Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-    .PARAMETER Confirm
-        Prompts you for confirmation before running the cmdlet.
+    The model to be used for tuning. Can be one of the predefined models or a fine-tuned model (starting with "ft:").
+    Default is "gpt-3.5-turbo-0125".
 
     .EXAMPLE
-        Start-TuneJob -FileId file-g8qyzvm2hxPxK1iwVaTX6Z3E
+    Start-TuneJob -FileId file-abc123 -Model gpt-3.5-turbo-0125
 
-        This example demonstrates manually specifying the file ID to initiate the model tuning process.
-
-    .EXAMPLE
-        Send-TuneFile -FilePath C:\path\to\file.json | Start-TuneJob -Model ft:gpt-3.5-turbo-0613:personal::8COaNMYp
-
-        This example demonstrates piping the file ID to Start-TuneJob to initiate the model tuning process against a pre-trained custom model.
+    Starts a new fine-tuning job using the specified file and the gpt-3.5-turbo-0125 model.
 
     .EXAMPLE
-        Start-TuneJob -FileId file-g8qyzvm2hxPxK1iwVaTX6Z3E -WhatIf
+    Get-TuneFile | Where-Object Name -eq "training_data.jsonl" | Start-TuneJob -Model ft:gpt-3.5-turbo-0613:my-org:custom_model:7p4lURx
 
-        Shows what would happen if the cmdlet runs, but does not execute the cmdlet.
-
-    .EXAMPLE
-        Start-TuneJob -FileId file-g8qyzvm2hxPxK1iwVaTX6Z3E -Confirm
-
-        Prompts for confirmation before executing the cmdlet.
-#>
+    Starts a new fine-tuning job using the file named "training_data.jsonl" and a custom fine-tuned model.
+    #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [Alias("training_file", "Id")]
         [string[]]$FileId,
-        [string]$Model = 'gpt-3.5-turbo-0613'
+        [Parameter(Position = 0)]
+        [ArgumentCompleter({
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
+            })]
+        [ValidateScript({ ValidateModelName $_ })]
+        [string]$Model = "gpt-3.5-turbo-0125"
     )
     process {
         foreach ($id in $FileId) {

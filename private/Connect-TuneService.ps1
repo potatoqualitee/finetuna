@@ -1,32 +1,39 @@
 function Connect-TuneService {
     <#
     .SYNOPSIS
-    This function connects to a specified AI model service using an API key.
+    Connects to a specified AI model service.
 
     .DESCRIPTION
-    Connect-TuneService uses the provided API key and model type to establish a connection to the AI service. If you don't provide an API key, it will use the environment variable OpenAIKey. The model to connect can be 'gpt-3.5-turbo', 'babbage-002', or 'davinci-002'. The default model is 'gpt-3.5-turbo'.
+    Connect-TuneService establishes a connection to the AI service using the specified model. It supports both predefined and fine-tuned models.
 
-    .PARAMETER ApiKey
-    The API key used for connecting to the AI service. If you don't specify an API key, it will use the OpenAIKey environment variable.
+    .PARAMETER Url
+    The URL of the API endpoint. By default, it uses the chat completions endpoint.
 
     .PARAMETER Model
-    The model you want to connect to. This can be 'gpt-3.5-turbo', 'babbage-002', or 'davinci-002'. The default is 'gpt-3.5-turbo'.
+    The model to connect to. Can be one of the predefined models or a fine-tuned model (starting with "ft:").
+
+    Default is "gpt-3.5-turbo-0125".
 
     .EXAMPLE
-    Connect-TuneService -ApiKey "your-api-key-here" -Model "gpt-3.5-turbo"
+    Connect-TuneService -Model "gpt-3.5-turbo-0125"
 
-    This example connects to the 'gpt-3.5-turbo' model using the specified API key.
+    Connects to the gpt-3.5-turbo-0125 model.
 
     .EXAMPLE
-    Connect-TuneService
+    Connect-TuneService -Model "ft:gpt-3.5-turbo-0613:my-org:custom_model:7p4lURx"
 
-    This example uses the OpenAIKey environment variable to connect to the default 'gpt-3.5-turbo' model.
-#>
+    Connects to a custom fine-tuned model.
+    #>
     [CmdletBinding()]
     param(
         [string]$Url = "$script:baseUrl/chat/completions",
-        [ValidateSet("gpt-3.5-turbo", "babbage-002", "davinci-002")]
-        [string]$Model = "gpt-3.5-turbo"
+        [Parameter(Position = 0)]
+        [ArgumentCompleter({
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
+            })]
+        [ValidateScript({ ValidateModelName $_ })]
+        [string]$Model = "gpt-3.5-turbo-0125"
     )
 
     # Set the headers for the WebSession
@@ -43,19 +50,19 @@ function Connect-TuneService {
         max_tokens = 5
     } | ConvertTo-Json
 
-    $Provider = Get-OAIProvider
-    $AzOAISecrets = Get-AzOAISecrets
-    switch ($Provider) {
+    $Provider = Get-TuneProvider
+
+    switch ($Provider.ApiType) {
         'OpenAI' {
-            $headers['Authorization'] = "Bearer $env:OpenAIKey"
+            $headers['Authorization'] = "Bearer $($Provider.ApiKey)"
         }
 
-        'AzureOpenAI' {
-            $headers['api-key'] = "$($AzOAISecrets.apiKEY)"
+        'Azure' {
+            $headers['api-key'] = $Provider.ApiKey
 
             if ($Body -isnot [System.IO.Stream]) {
                 if ($null -ne $Body -and $Body.Contains("model") ) {
-                    $Body.model = $AzOAISecrets.deploymentName
+                    $Body.model = $Provider.Deployment
                 }
             }
 
@@ -68,10 +75,10 @@ function Connect-TuneService {
             if ($Url.Contains('?')) {
                 $separator = '&'
             }
-            $Url = "{0}/openai{1}{2}api-version={3}" -f $AzOAISecrets.apiURI,
+            $Url = "{0}/openai{1}{2}api-version={3}" -f $Provider.ApiBase,
             $Url,
             $separator,
-            $AzOAISecrets.apiVersion
+            $Provider.ApiVersion
         }
     }
 

@@ -1,53 +1,43 @@
 function New-TuneModel {
-<#
+    <#
     .SYNOPSIS
-        Automates the entire fine-tuning process for an OpenAI model.
+    Creates a new fine-tuned model.
 
     .DESCRIPTION
-        This command uploads a training file, starts a fine-tuning job, and monitors its progress.
-        Once the job is complete, it sets the new fine-tuned model as the current model and notifies the user.
+    New-TuneModel initiates the process of creating a new fine-tuned model based on a specified base model and training data.
 
     .PARAMETER FilePath
-        The path to the training file (.jsonl) used for fine-tuning.
+    The path to the training file (.jsonl) used for fine-tuning.
 
     .PARAMETER Model
-        The base model to use for fine-tuning. Defaults to gpt-3.5-turbo-0613.
+    The base model to use for fine-tuning. Can be one of the predefined models or a fine-tuned model (starting with "ft:").
+    Default is "gpt-3.5-turbo-0125".
 
     .PARAMETER Append
-        Append all files to the same model. If this switch is not used, a new model will be created for each file.
-
-    .PARAMETER WhatIf
-        Shows what would happen if the cmdlet runs. The cmdlet is not run.
-
-    .PARAMETER Confirm
-        Prompts you for confirmation before running the cmdlet.
+    If specified, appends all files to the same model. If not used, a new model will be created for each file.
 
     .EXAMPLE
-        New-TuneModel -FilePath .\sample\potato.jsonl -Model gpt-3.5-turbo-0613
+    New-TuneModel -FilePath .\sample\data.jsonl -Model gpt-3.5-turbo-0125
 
-        Uploads the potato.jsonl file and starts a fine-tuning job using the gpt-3.5-turbo-0613 model.
-
-        .EXAMPLE
-        Get-ChildItem *.jsonl | New-TuneModel -Model gpt-3.5-turbo-0613 -Append
-
-        Pipes all .jsonl files in the current directory to New-TuneModel, appending them to the gpt-3.5-turbo-0613 model for fine-tuning, instead of creating a new model for each file.
+    Creates a new fine-tuned model using the data.jsonl file and the gpt-3.5-turbo-0125 base model.
 
     .EXAMPLE
-        New-TuneModel -FilePath .\sample\potato.jsonl -Model gpt-3.5-turbo-0613 -WhatIf
+    Get-ChildItem *.jsonl | New-TuneModel -Model ft:gpt-3.5-turbo-0613:my-org:custom_model:7p4lURx -Append
 
-        Shows what would happen if the cmdlet runs, but does not execute the cmdlet.
-
-    .EXAMPLE
-        New-TuneModel -FilePath .\sample\potato.jsonl -Model gpt-3.5-turbo-0613 -Confirm
-
-        Prompts for confirmation before executing the cmdlet.
-#>
+    Creates a new fine-tuned model by appending all .jsonl files in the current directory to an existing fine-tuned model.
+    #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
-        [ValidateScript({ return (Test-Path $_) })]
+        [ValidateScript({ Test-Path $_ })]
         [System.IO.FileInfo]$FilePath,
-        [string]$Model = 'gpt-3.5-turbo-0613',
+        [Parameter(Position = 0)]
+        [ArgumentCompleter({
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
+            })]
+        [ValidateScript({ ValidateModelName $_ })]
+        [string]$Model = "gpt-3.5-turbo-0125",
         [switch]$Append
     )
     process {

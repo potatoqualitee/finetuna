@@ -30,12 +30,13 @@
     Description = 'OpenAI Fine Tuner'
 
     # Modules that must be imported into the global environment prior to importing this module
-    RequiredModules = @('PSAI')
+    RequiredModules = @('PSOpenAI')
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @('lib/Microsoft.ML.Tokenizers.dll')
 
     FunctionsToExport  = @(
+        'Clear-TuneProvider',
         'Compare-Embedding',
         'Get-Embedding',
         'Get-TuneFile',

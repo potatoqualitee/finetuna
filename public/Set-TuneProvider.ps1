@@ -1,93 +1,108 @@
 function Set-TuneProvider {
     <#
     .SYNOPSIS
-    Sets the configuration for a tune provider, either OpenAI or Azure OpenAI.
+        Configures the OpenAI or Azure OpenAI service context for finetuna.
 
     .DESCRIPTION
-    The Set-TuneProvider function configures the PowerShell session to use either OpenAI or Azure"s OpenAI services by setting various parameters such as the API Uri, API Key, API Version, and Deployment Name for Azure OpenAI.
-
-    .PARAMETER Provider
-    The provider for AI services. Can be "OpenAI" or "AzureOpenAI". The default is "OpenAI".
-
-    .PARAMETER ApiUri
-    The API Uri for Azure OpenAI services. This parameter is required when using "AzureOpenAI" as the provider.
+        This command sets the necessary context for interacting with either the OpenAI or Azure OpenAI service within finetuna.
+        It sets the API key, API base, deployment, authentication type, and other parameters required for the service.
 
     .PARAMETER ApiKey
-    The API Key for accessing the chosen provider"s services. This parameter is required for AzureOpenAI.
+        The API key for accessing the OpenAI or Azure OpenAI service.
+
+    .PARAMETER ApiBase
+        The base URL for the API. Required for Azure OpenAI service.
+
+    .PARAMETER Deployment
+        The deployment or model name used for the Azure OpenAI service.
+
+    .PARAMETER ApiType
+        Specifies the type of API to be used. Valid values are 'OpenAI' and 'Azure'.
 
     .PARAMETER ApiVersion
-    The version of the API for Azure OpenAI services. This parameter is required when using "AzureOpenAI" as the provider.
+        Specifies the version of the API to be used. Required for Azure OpenAI service.
 
-    .PARAMETER DeploymentName
-    The name of the deployment for Azure OpenAI services. This parameter is required when using "AzureOpenAI" as the provider.
+    .PARAMETER AuthType
+        Specifies the type of authentication to be used. Valid values are 'openai', 'azure', 'azure_ad'.
+
+    .PARAMETER Organization
+        The organization name for the OpenAI service.
+
+    .PARAMETER NoPersist
+        When specified, the configuration is not persisted to a file.
 
     .EXAMPLE
-    Set-TuneProvider -Provider OpenAI
+        Set-TuneProvider -ApiKey "your-api-key" -ApiType "OpenAI"
 
-    This example configures the session to use OpenAI"s services.
-
-    .EXAMPLE
-    $azureParams = @{
-        Provider = "AzureOpenAI"
-        ApiUri = "https://your-azure-api-uri"
-        ApiKey = "your-api-key"
-        ApiVersion = "2022-01-01"
-        DeploymentName = "your-deployment-name"
-    }
-    Set-TuneProvider @azureParams
-
-    This example demonstrates how to configure the session to use Azure OpenAI services by using splatting to pass parameters to the Set-TuneProvider function. Splatting allows for a cleaner and more readable way to pass a set of parameters.
-
-    https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#rest-api-versioning
-
-    .NOTES
-    When setting Azure as the provider, all parameters (ApiUri, ApiKey, ApiVersion, DeploymentName) are required.
-
+        This example sets the OpenAI provider configuration for OpenAI and persists it.
     #>
     [CmdletBinding()]
-    param(
-        [ValidateSet("AzureOpenAI", "OpenAI")]
-        [string]$Provider = "OpenAI",
-        [string]$ApiUri,
+    param (
+        [Parameter(ValueFromPipelineByPropertyName)]
         [string]$ApiKey,
-        [string]$ApiVersion = "2024-02-15-preview",
-        [string]$DeploymentName
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$ApiBase,
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$Deployment,
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [ValidateSet("OpenAI", "Azure")]
+        [string]$ApiType,
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$ApiVersion,
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [ValidateSet("openai", "azure", "azure_ad")]
+        [string]$AuthType,
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$Organization,
+        [switch]$NoPersist
     )
-
-
-    if ($Provider -eq "OpenAI") {
-        $script:baseUrl = "https://api.openai.com/v1"
-        Write-Verbose "BaseURL set to $baseUrl"
-        $null = Set-OAIProvider $Provider
-    } else {
-        # It"s Azure
-        if ($null -in $ApiUri, $ApiKey, $ApiVersion, $DeploymentName) {
-            throw "When setting Azure as the provider, the following are required: ApiURI, ApiKey, ApiVersion, DeploymentName"
+    process {
+        if (-not $AuthType) {
+            $AuthType = if ($ApiType -eq 'Azure') { 'Azure' } else { 'OpenAI' }
         }
 
-        if (-not $script:AzOAISecrets) {
-            $script:AzOAISecrets = @{}
+        if (-not $ApiKey) {
+            $ApiKey = $env:OpenAIKey
         }
 
-        $script:AzOAISecrets["apiURI"] = $ApiUri
-        $script:AzOAISecrets["apiKEY"] = $ApiKey
-        $script:AzOAISecrets["apiVersion"] = $ApiVersion
-        $script:AzOAISecrets["deploymentName"] = $DeploymentName
+        $null = Clear-TuneProvider
 
-        $script:baseUrl = $AzOAISecrets.apiURI
-        Write-Verbose "BaseURL set to $baseUrl"
-
-        $secrets = @{
-            apiURI         = $ApiUri
-            apiVersion     = $ApiVersion
-            apiKey         = $ApiKey
-            deploymentName = $DeploymentName
+        if ($ApiType -eq 'Azure') {
+            # Set context for Azure
+            $env:OpenAIKey = $ApiKey
+            $PSDefaultParameterValues["*:ApiKey"] = $ApiKey
+            $PSDefaultParameterValues["*:ApiBase"] = $ApiBase
+            $PSDefaultParameterValues["*:ApiVersion"] = $ApiVersion
+            $PSDefaultParameterValues["*:AuthType"] = $AuthType
+            if ($Deployment) {
+                $PSDefaultParameterValues["*:Deployment"] = $Deployment
+                $PSDefaultParameterValues["*:Model"] = $Deployment
+            }
+        } else {
+            # Set context for OpenAI
+            $env:OpenAIKey = $ApiKey
+            $PSDefaultParameterValues["*:ApiKey"] = $ApiKey
+            $PSDefaultParameterValues["*:AuthType"] = 'OpenAI'
         }
 
-        $null = Set-OAIProvider AzureOpenAI
-        $null = Set-AzOAISecrets @secrets
+        if (-not $NoPersist) {
+            $configFile = Join-Path -Path $script:configdir -ChildPath config.json
+            try {
+                [pscustomobject]@{
+                    ApiKey       = $ApiKey
+                    AuthType     = $AuthType
+                    ApiType      = $ApiType
+                    Deployment   = $Deployment
+                    ApiBase      = $ApiBase
+                    ApiVersion   = $ApiVersion
+                    Organization = $Organization
+                } | ConvertTo-Json | Set-Content -Path $configFile -Force
+
+                Write-Verbose "OpenAI provider configuration persisted."
+            } catch {
+                Write-Error "Error persisting configuration file: $_"
+            }
+        }
+        Get-TuneProvider
     }
-
-    Write-Verbose "Setting provider to $Provider"
-    $script:OAIProvider = $Provider
 }
