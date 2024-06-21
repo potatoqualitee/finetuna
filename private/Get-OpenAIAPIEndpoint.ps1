@@ -19,16 +19,6 @@ function Get-OpenAIAPIEndpoint {
     }
 
     switch ($EndpointName) {
-        'FineTuning' {
-            $UriBuilder.Path += '/fine_tuning'
-            @{
-                Name          = 'chat.completion'
-                Method        = 'Post'
-                Uri           = $UriBuilder.Uri
-                ContentType   = 'application/json'
-            }
-            continue
-        }
         'FineTuning.Jobs' {
             $UriBuilder.Path += '/fine_tuning/jobs'
             @{
