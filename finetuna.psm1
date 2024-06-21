@@ -6,7 +6,7 @@ if (-not (Get-Module PSOpenAI)) {
 }
 # Get PSOpenAI's private functions
 $modulepath = Get-Module -Name PSOpenAI -ListAvailable | Select-Object -First 1
-$privatedir = Join-Path -Path $modulepath.ModuleBase -ChildPath private
+$privatedir = Join-Path -Path $modulepath.ModuleBase -ChildPath Private
 function ValidateModelName {
     param([string]$ModelName)
     if ($ModelName -notin $script:ValidModels -and -not $ModelName.StartsWith("ft:")) {
@@ -29,7 +29,7 @@ foreach ($file in (Get-ChildItem -Path $privatedir -Filter *.ps1)) {
 }
 
 # Import all internal functions
-foreach ($function in (Get-ChildItem "$ModuleRoot\Private\" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
+foreach ($function in (Get-ChildItem "$ModuleRoot\private\" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
     . Import-ModuleFile -Path $function.FullName
 }
 
