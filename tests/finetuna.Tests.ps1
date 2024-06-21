@@ -1,9 +1,4 @@
 Describe "finetuna Module" {
-    BeforeAll {
-        $modulePath = Join-Path -Parent ($PSScriptRoot | Split-Path) -Child finetuna.psd1
-        Import-Module $modulePath -Force
-    }
-
     Context "New-TuneModel (Create-CustomModel)" {
         It "Should create a new fine-tuned model" {
             # Create a test JSONL file

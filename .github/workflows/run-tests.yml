@@ -27,7 +27,8 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        #$testResult = Invoke-Pester -Path "./tests/finetuna.Tests.ps1" -PassThru
+        Import-Module ./finetuna.psd1 -ErrorAction Stop
+        $testResult = Invoke-Pester -Path "./tests/finetuna.Tests.ps1" -PassThru
         if ($testResult.FailedCount -gt 0) {
             throw "$($testResult.FailedCount) tests failed."
         }
