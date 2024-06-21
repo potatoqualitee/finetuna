@@ -1,21 +1,23 @@
 function Get-TuneFile {
     <#
     .SYNOPSIS
-    Retrieves a specific file from the API.
+    Retrieves a specific file or list of files from the OpenAI API.
 
     .DESCRIPTION
-    Sends a GET request to the API to retrieve a specified file.
+    The Get-TuneFile cmdlet sends a GET request to the OpenAI API to retrieve a specified file or list of files.
 
     .PARAMETER Id
-    The ID of the file to retrieve.
+    Optional ID or array of IDs of the file(s) to retrieve.
 
     .EXAMPLE
     Get-TuneFile
 
-    .EXAMPLE
-    Get-TuneFile -Id file-1234
+    This command retrieves a list of files from the OpenAI API.
 
-    This command retrieves the file with the ID file-1234 from the API.
+    .EXAMPLE
+    Get-TuneFile -Id "file-1234"
+
+    This command retrieves the file with the ID "file-1234" from the OpenAI API.
     #>
 
     [CmdletBinding()]
@@ -26,23 +28,11 @@ function Get-TuneFile {
     )
     process {
         if ($Id) {
-            foreach ($fileid in $Id) {
-                $url = "$script:baseUrl/files/$fileid"
-                Write-Verbose "Getting $url"
-                $params = @{
-                    Uri    = $url
-                    Method = "GET"
-                }
-                Invoke-RestMethod2 @params
+            foreach ($fileId in $Id) {
+                Get-OpenAIFile -FileId $fileId
             }
         } else {
-            $url = "$script:baseUrl/files"
-            Write-Verbose "Getting $url"
-            $params = @{
-                Uri        = $url
-                Method     = "GET"
-            }
-            Invoke-RestMethod2 @params
+            Get-OpenAIFile
         }
     }
 }

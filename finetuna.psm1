@@ -1,6 +1,23 @@
 $script:ModuleRoot = $PSScriptRoot
 $script:ValidModels = @("gpt-3.5-turbo-0125", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-0613", "babbage-002", "davinci-002", "gpt-4-0613", "gpt-4o-2024-05-13")
 
+# Retrieve the path of the PSOpenAI module using the $ExecutionContext
+$psOpenAIModule = $ExecutionContext.SessionState.Module | Where-Object { $PSItem.Name -eq 'PSOpenAI' }
+
+if ($psOpenAIModule) {
+    $psOpenAIPath = Split-Path -Path $psOpenAIModule.Path -Parent
+    $psOpenAIPsm1 = Join-Path -Path $psOpenAIPath -ChildPath PSOpenAI.psm1
+
+    if (Test-Path -Path $psOpenAIPsm1) {
+        Write-Output "Importing module from path: $psOpenAIPsm1"
+        Import-Module $psOpenAIPsm1 -Force
+    } else {
+        Write-Output "The .psm1 file does not exist at the expected path: $psOpenAIPsm1"
+    }
+} else {
+    Write-Output "The module PSOpenAI is not loaded. Please ensure it is installed and available."
+}
+
 function ValidateModelName {
     param([string]$ModelName)
     if ($ModelName -notin $script:ValidModels -and -not $ModelName.StartsWith("ft:")) {

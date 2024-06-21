@@ -30,7 +30,6 @@ function Stop-TuneJob {
 
     Prompts for confirmation before executing the cmdlet.
     #>
-
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
@@ -40,11 +39,15 @@ function Stop-TuneJob {
     process {
         foreach ($jobid in $Id) {
             if ($PSCmdlet.ShouldProcess("Job ID: $jobid", 'Cancel')) {
+                $OpenAIParameter = Get-OpenAIAPIParameter -EndpointName Files
+
+                $QueryUri = "{0}/fine-tunes/{1}/cancel" -f $OpenAIParameter.Uri, $jobid
+
                 $params = @{
-                    Uri    = "$script:baseUrl/fine_tuning/jobs/$jobid/cancel"
-                    Method = "POST"
+                    Method       = 'Post'
+                    Uri          = $QueryUri
                 }
-                Invoke-RestMethod2 @params
+                Invoke-OpenAIAPIRequest @params
             }
         }
     }

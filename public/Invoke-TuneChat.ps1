@@ -96,15 +96,19 @@ function Invoke-TuneChat {
         Write-Verbose "Chatting using model $Model"
         Write-Verbose "Max tokens: $MaxTokens"
         Write-Verbose "Body: $($body | ConvertTo-Json)"
-        # Create a hashtable containing the parameters
-        $params = @{
-            Uri        = "$script:baseUrl/chat/completions"
-            Method     = "POST"
-            Body       = ($body | ConvertTo-Json)
-            Raw        = $Raw
-        }
 
         Write-Verbose "Asking: $Message"
-        Invoke-RestMethod2 @params
+        $splat = @{
+            Message      = $Message
+            Model        = $Model
+            MaxTokens    = $MaxTokens
+            ApiKey       = $script:ApiKey
+            ApiBase      = $script:ApiBase
+            AuthType     = $script:AuthType
+            ApiVersion   = $script:ApiVersion
+            Organization = $script:Organization
+        }
+        Request-ChatCompletion @splat
+
     }
 }

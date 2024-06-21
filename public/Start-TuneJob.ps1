@@ -39,19 +39,18 @@ function Start-TuneJob {
     process {
         foreach ($id in $FileId) {
             if ($PSCmdlet.ShouldProcess("File ID: $id for Model Tuning", 'Start')) {
-                $body = @{
-                    training_file = $id
-                    model         = $Model
-                } | ConvertTo-Json
+                $OpenAIParameter = Get-OpenAIAPIParameter -EndpointName Files
+
+                $PostBody = [System.Collections.Specialized.OrderedDictionary]::new()
+                $PostBody.training_file = $id
+                $PostBody.model = $Model
 
                 $params = @{
-                    Uri         = "$script:baseUrl/fine_tuning/jobs"
-                    Method      = "POST"
-                    Body        = $body
-                    ContentType = "application/json"
+                    Method       = 'Post'
+                    Uri          = "{0}/fine-tunes" -f $OpenAIParameter.Uri
+                    Body         = $PostBody
                 }
-
-                Invoke-RestMethod2 @params
+                Invoke-OpenAIAPIRequest @params
             }
         }
     }

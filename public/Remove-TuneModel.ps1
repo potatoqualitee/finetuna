@@ -1,13 +1,13 @@
 function Remove-TuneModel {
     <#
     .SYNOPSIS
-    Removes a specific model from the API.
+    Deletes a fine-tuned model from OpenAI.
 
     .DESCRIPTION
-    Sends a DELETE request to the API to remove a specified model.
+    The Remove-TuneModel cmdlet sends a DELETE request to the OpenAI API to delete a specified fine-tuned model.
 
     .PARAMETER Model
-    The name of the model to remove.
+    The name of the model to delete.
 
     .PARAMETER WhatIf
     Shows what would happen if the cmdlet runs. The cmdlet is not run.
@@ -16,16 +16,16 @@ function Remove-TuneModel {
     Prompts you for confirmation before running the cmdlet.
 
     .EXAMPLE
-    Remove-TuneModel -Model ft:gpt-3.5-turbo-0613:personal::8CUJeKeP
+    Remove-TuneModel -Model "ft:gpt-3.5-turbo-0613:personal::8CUJeKeP"
 
-    This command removes the model with the name ft:gpt-3.5-turbo-0613:personal::8CUJeKeP from the API.
+    This command deletes the model with the name "ft:gpt-3.5-turbo-0613:personal::8CUJeKeP" from OpenAI.
 
     .EXAMPLE
     Get-TuneModel -Custom | Remove-TuneModel -Confirm:$false
 
-    Deletes all of your custom models and does not prompt for confirmation.
-
+    Deletes all custom fine-tuned models without prompting for confirmation.
     #>
+
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param (
         [Parameter(ValueFromPipelineByPropertyName, Mandatory)]
@@ -33,15 +33,9 @@ function Remove-TuneModel {
         [string[]]$Model
     )
     process {
-        foreach ($modelname in $Model) {
-            $url = "$script:baseUrl/models/$modelname"
-            if ($PSCmdlet.ShouldProcess("Model: $modelname", 'Remove')) {
-                Write-Verbose "Removing $modelname"
-                $params = @{
-                    Uri    = $url
-                    Method = "DELETE"
-                }
-                Invoke-RestMethod2 @params
+        foreach ($modelName in $Model) {
+            if ($PSCmdlet.ShouldProcess("Model: $modelName", 'Delete')) {
+                Remove-OpenAIModel -Model $modelName
             }
         }
     }
