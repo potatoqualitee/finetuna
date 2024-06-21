@@ -34,8 +34,7 @@
 
     # Assemblies that must be loaded prior to importing this module
     RequiredAssemblies = @(
-        "./lib/SharpToken.dll",
-        "./lib/MathNet.Numerics.dll"
+        "./lib/SharpToken.dll"
     )
 
     FunctionsToExport  = @(
