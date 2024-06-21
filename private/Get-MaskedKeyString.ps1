@@ -1,6 +1,6 @@
 using namespace System.Runtime.InteropServices
 
-function Get-MaskedString {
+function Get-MaskedKeyString {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -71,7 +71,7 @@ function Get-APIKey {
         }else {
             $first = 3
         }
-        Get-MaskedString -Source $key -First $first -Last 2 -MaxNumberOfAsterisks 45
+        Get-MaskedKeyString -Source $key -First $first -Last 2 -MaxNumberOfAsterisks 45
     } else {
         $null
     }
