@@ -22,35 +22,62 @@ function Get-TuneJob {
 
     This command retrieves the fine-tuning job with the ID "job-1234" from the OpenAI API.
     #>
-
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipelineByPropertyName)]
-        [Alias("training_file", "JobId")]
+        [Alias("JobId")]
         [string]$Id,
         [switch]$Raw
     )
     process {
+        $OpenAIParameter = Get-OpenAIAPIParameter -Parameter $script:bigparms -Endpoint FineTuning.Jobs
+
         if ($Id) {
-            $url = "$script:baseUrl/fine-tunes/$Id"
-            $params = @{
-                Uri    = $url
-                Method = "GET"
-            }
-            if ($Raw) {
-                $params['Raw'] = $true
-            }
-            Invoke-OpenAIAPIRequest @params
+            $Uri = "{0}/{1}" -f $OpenAIParameter.Uri, $Id
         } else {
-            $url = "$script:baseUrl/fine-tunes"
-            $params = @{
-                Uri    = $url
-                Method = "GET"
-            }
-            if ($Raw) {
-                $params['Raw'] = $true
-            }
-            Invoke-OpenAIAPIRequest @params
+            $Uri = $OpenAIParameter.Uri
         }
+
+        $params = @{
+            Method       = 'Get'
+            Uri          = $Uri
+            ContentType  = $OpenAIParameter.ContentType
+            ApiKey       = $OpenAIParameter.ApiKey
+            AuthType     = $OpenAIParameter.AuthType
+            Organization = $OpenAIParameter.Organization
+        }
+
+        if ($Raw) {
+            $params['ReturnRawResponse'] = $true
+        }
+
+        $Response = Invoke-OpenAIAPIRequest @params
+
+        if (-not $Raw) {
+            $Response = $Response | ConvertFrom-Json
+            if ($Response.data) {
+                $Response.data | ForEach-Object {
+                    #splat add-member
+                    $splat = @{
+                        MemberType = 'NoteProperty'
+                        Name       = 'PSTypeName'
+                        Value      = 'PSOpenAI.FineTuningJob'
+                        PassThru   = $true
+                    }
+                    $PSItem | Add-Member @splat
+                }
+            } else {
+                # splat Add-Member with a hashtable
+                $splat = @{
+                    MemberType = 'NoteProperty'
+                    Name       = 'PSTypeName'
+                    Value      = 'PSOpenAI.FineTuningJob'
+                    PassThru   = $true
+                }
+                $Response | Add-Member @splat
+            }
+        }
+
+        Write-Output $Response
     }
 }

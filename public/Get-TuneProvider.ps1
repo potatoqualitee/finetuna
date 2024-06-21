@@ -49,7 +49,7 @@ function Get-TuneProvider {
                         Last                 = 2
                         MaxNumberOfAsterisks = 45
                     }
-                    $maskedkey = Get-MaskedString @splat
+                    $maskedkey = Get-MaskedKeyString @splat
                 } else {
                     $maskedkey = $null
                 }

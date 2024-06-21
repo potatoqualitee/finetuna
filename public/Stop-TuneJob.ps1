@@ -46,6 +46,9 @@ function Stop-TuneJob {
                 $params = @{
                     Method       = 'Post'
                     Uri          = $QueryUri
+                    ApiKey       = $OpenAIParameter.ApiKey
+                    AuthType     = $OpenAIParameter.AuthType
+                    Organization = $OpenAIParameter.Organization
                 }
                 Invoke-OpenAIAPIRequest @params
             }

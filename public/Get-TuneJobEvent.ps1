@@ -14,20 +14,57 @@ function Get-TuneJobEvent {
 
     This command retrieves the fine-tuning event of the job with the ID job-1234 from the API.
     #>
-
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string[]]$Id
     )
     process {
-        foreach ($jobid in $Id) {
-            $params = @{
-                Uri    = "$script:baseUrl/fine_tuning/jobs/$jobid/events?limit=1000"
-                Method     = "GET"
-            }
-            Invoke-RestMethod2 @params
+        foreach ($eventid in $Id) {
+            $OpenAIParameter = Get-OpenAIAPIParameter -Parameter $script:bigparms -Endpoint FineTuning.JobEvents
+            $Uri = $OpenAIParameter.Uri -replace "\{0\}", $eventid -replace "\{1\}", "?limit=1000"
 
+            $params = @{
+                Method       = 'Get'
+                Uri          = $Uri
+                ContentType  = $OpenAIParameter.ContentType
+                ApiKey       = $OpenAIParameter.ApiKey
+                AuthType     = $OpenAIParameter.AuthType
+                Organization = $OpenAIParameter.Organization
+            }
+
+            if ($Raw) {
+                $params['ReturnRawResponse'] = $true
+            }
+
+            $Response = Invoke-OpenAIAPIRequest @params
+
+            if (-not $Raw) {
+                $Response = $Response | ConvertFrom-Json
+                if ($Response.data) {
+                    $Response.data | ForEach-Object {
+                        #splat add-member
+                        $splat = @{
+                            MemberType = 'NoteProperty'
+                            Name       = 'PSTypeName'
+                            Value      = 'PSOpenAI.FineTuningJobEvent'
+                            PassThru   = $true
+                        }
+                        $PSItem | Add-Member @splat
+                    }
+                } else {
+                    # splat Add-Member with a hashtable
+                    $splat = @{
+                        MemberType = 'NoteProperty'
+                        Name       = 'PSTypeName'
+                        Value      = 'PSOpenAI.FineTuningJobEvent'
+                        PassThru   = $true
+                    }
+                    $Response | Add-Member @splat
+                }
+            }
+
+            Write-Output $Response
         }
     }
 }

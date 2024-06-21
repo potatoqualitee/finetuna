@@ -1,23 +1,12 @@
 $script:ModuleRoot = $PSScriptRoot
 $script:ValidModels = @("gpt-3.5-turbo-0125", "gpt-3.5-turbo-1106", "gpt-3.5-turbo-0613", "babbage-002", "davinci-002", "gpt-4-0613", "gpt-4o-2024-05-13")
 
-# Retrieve the path of the PSOpenAI module using the $ExecutionContext
-$psOpenAIModule = $ExecutionContext.SessionState.Module | Where-Object { $PSItem.Name -eq 'PSOpenAI' }
-
-if ($psOpenAIModule) {
-    $psOpenAIPath = Split-Path -Path $psOpenAIModule.Path -Parent
-    $psOpenAIPsm1 = Join-Path -Path $psOpenAIPath -ChildPath PSOpenAI.psm1
-
-    if (Test-Path -Path $psOpenAIPsm1) {
-        Write-Output "Importing module from path: $psOpenAIPsm1"
-        Import-Module $psOpenAIPsm1 -Force
-    } else {
-        Write-Output "The .psm1 file does not exist at the expected path: $psOpenAIPsm1"
-    }
-} else {
-    Write-Output "The module PSOpenAI is not loaded. Please ensure it is installed and available."
+if (-not (Get-Module PSOpenAI)) {
+    $null = Import-Module PSOpenAI
 }
-
+# Get PSOpenAI's private functions
+$modulepath = Get-Module -Name PSOpenAI -ListAvailable | Select-Object -First 1
+$privatedir = Join-Path -Path $modulepath.ModuleBase -ChildPath private
 function ValidateModelName {
     param([string]$ModelName)
     if ($ModelName -notin $script:ValidModels -and -not $ModelName.StartsWith("ft:")) {
@@ -33,6 +22,10 @@ function Import-ModuleFile {
 
     if ($doDotSource) { . $Path }
     else { $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($Path))), $null, $null) }
+}
+
+foreach ($file in (Get-ChildItem -Path $privatedir -Filter *.ps1)) {
+    . Import-ModuleFile -Path $file.FullName
 }
 
 # Import all internal functions
@@ -89,4 +82,17 @@ if (Test-Path -Path $configFile) {
     if ($persisted.AuthType) { $splat.AuthType = $persisted.AuthType }
     if ($persisted.Organization) { $splat.Organization = $persisted.Organization }
     $null = Set-TuneProvider @splat
+}
+
+
+# get context values to pass to Get-OpenAIAPIParameter
+$context = Get-OpenAIContext
+$script:bigparms = @{
+    ApiKey        = $context.ApiKey
+    AuthType      = $context.AuthType
+    Organization  = $context.Organization
+    ApiBase       = $context.ApiBase
+    ApiVersion    = $context.ApiVersion
+    TimeoutSec    = $context.TimeoutSec
+    MaxRetryCount = $context.MaxRetryCount
 }

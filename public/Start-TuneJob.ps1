@@ -49,6 +49,9 @@ function Start-TuneJob {
                     Method       = 'Post'
                     Uri          = "{0}/fine-tunes" -f $OpenAIParameter.Uri
                     Body         = $PostBody
+                    ApiKey       = $OpenAIParameter.ApiKey
+                    AuthType     = $OpenAIParameter.AuthType
+                    Organization = $OpenAIParameter.Organization
                 }
                 Invoke-OpenAIAPIRequest @params
             }

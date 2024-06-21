@@ -1,7 +1,7 @@
 function Remove-TuneFile {
     <#
     .SYNOPSIS
-    Deletes a file from the OpenAI API.
+    Deletes a file using the OpenAI API.
 
     .DESCRIPTION
     The Remove-TuneFile cmdlet sends a DELETE request to the OpenAI API to delete a specified file.
@@ -30,20 +30,15 @@ function Remove-TuneFile {
 
     Doesn't prompt for confirmation before executing the cmdlet.
     #>
-
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string[]]$Id
     )
     process {
-        foreach ($fileid in $Id) {
-            if ($PSCmdlet.ShouldProcess("File ID: $fileid", 'Remove')) {
-                $params = @{
-                    Uri    = "$script:baseUrl/files/$fileid"
-                    Method = "DELETE"
-                }
-                Invoke-RestMethod2 @params
+        foreach ($fileId in $Id) {
+            if ($PSCmdlet.ShouldProcess("File ID: $fileId", 'Remove')) {
+                Remove-OpenAIFile -FileId $fileId
             }
         }
     }
