@@ -22,7 +22,6 @@ function Measure-TuneToken {
 
     This command will read the content of file.txt, pass the content as a string to Measure-TuneToken, and return the token count as a PSCustomObject.
     #>
-
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -32,12 +31,7 @@ function Measure-TuneToken {
         [string]$Model = 'cl100k_base'
     )
     begin {
-        if ($script:modelmapping.ContainsKey($Model)) {
-            $encodingName = $script:modelmapping[$Model]
-        } else {
-            $encodingName = $Model
-        }
-
+        $bpe = New-Object Microsoft.ML.Tokenizers.Bpe
         $combinedString = New-Object System.Text.StringBuilder
     }
     process {
@@ -46,27 +40,24 @@ function Measure-TuneToken {
         }
     }
     end {
-        $encodingName = $Model.ToString()
-        $encoding = [SharpToken.GptEncoding]::GetEncoding($encodingName)
-        $encoded = $encoding.Encode($combinedString.ToString())
-        $tokenCount = $encoded.Count
+        $tokens = $bpe.Tokenize($combinedString.ToString())
+        $tokenCount = $tokens.Count
 
-        # Pricing details based on the provided table
-        # https://openai.com/pricing
+        # The pricing details remain the same
         $pricingDetails = @{
-            'cl100k_base'              = @{ Training = 0.0080; InputUsage = 0.0030; OutputUsage = 0.0060 }
-            'p50k_base'                = @{ Training = 0.0060; InputUsage = 0.0120; OutputUsage = 0.0120 }
-            'r50k_base'                = @{ Training = 0.0004; InputUsage = 0.0016; OutputUsage = 0.0016 }
-            'davinci-002'              = @{ Training = $null; InputUsage = 0.0030; OutputUsage = 0.0030 }
-            'babbage-002'              = @{ Training = $null; InputUsage = 0.0030; OutputUsage = 0.0030 }
-            'text-embedding-3-small'   = @{ Training = $null; InputUsage = 0.00002; OutputUsage = $null }
-            'text-embedding-3-large'   = @{ Training = $null; InputUsage = 0.00013; OutputUsage = $null }
-            'text-embedding-ada-002'   = @{ Training = $null; InputUsage = 0.0001; OutputUsage = $null }
+            'cl100k_base'            = @{ Training = 0.0080; InputUsage = 0.0030; OutputUsage = 0.0060 }
+            'p50k_base'              = @{ Training = 0.0060; InputUsage = 0.0120; OutputUsage = 0.0120 }
+            'r50k_base'              = @{ Training = 0.0004; InputUsage = 0.0016; OutputUsage = 0.0016 }
+            'davinci-002'            = @{ Training = $null; InputUsage = 0.0030; OutputUsage = 0.0030 }
+            'babbage-002'            = @{ Training = $null; InputUsage = 0.0030; OutputUsage = 0.0030 }
+            'text-embedding-3-small' = @{ Training = $null; InputUsage = 0.00002; OutputUsage = $null }
+            'text-embedding-3-large' = @{ Training = $null; InputUsage = 0.00013; OutputUsage = $null }
+            'text-embedding-ada-002' = @{ Training = $null; InputUsage = 0.0001; OutputUsage = $null }
         }
 
-        $trainingCost = $tokenCount * ($pricingDetails[$encodingName].Training / 1000)
-        $inputUsageCost = $tokenCount * ($pricingDetails[$encodingName].InputUsage / 1000)
-        $outputUsageCost = $tokenCount * ($pricingDetails[$encodingName].OutputUsage / 1000)
+        $trainingCost = $tokenCount * ($pricingDetails[$Model].Training / 1000)
+        $inputUsageCost = $tokenCount * ($pricingDetails[$Model].InputUsage / 1000)
+        $outputUsageCost = $tokenCount * ($pricingDetails[$Model].OutputUsage / 1000)
 
         [PSCustomObject]@{
             TokenCount      = $tokenCount
