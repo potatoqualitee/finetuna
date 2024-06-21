@@ -33,9 +33,7 @@
     RequiredModules = @('PSOpenAI')
 
     # Assemblies that must be loaded prior to importing this module
-    RequiredAssemblies = @(
-        "./lib/SharpToken.dll"
-    )
+    RequiredAssemblies = @('lib/Microsoft.ML.Tokenizers.dll')
 
     FunctionsToExport  = @(
         'Clear-TuneProvider',
