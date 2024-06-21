@@ -1,10 +1,10 @@
 function Get-TuneFileContent {
     <#
     .SYNOPSIS
-    Retrieves the content of a specific file from the API.
+    Retrieves the content of a specific file from the OpenAI API.
 
     .DESCRIPTION
-    Sends a GET request to the API to retrieve the content of a specified file.
+    The Get-TuneFileContent gets the content of a specified file.
 
     .PARAMETER Id
     The ID of the file to retrieve its content.
@@ -12,7 +12,7 @@ function Get-TuneFileContent {
     .EXAMPLE
     "file-1234" | Get-TuneFileContent
 
-    This command retrieves the content of the file with the ID file-1234 from the API.
+    This command retrieves the content of the file with the ID "file-1234" from the OpenAI API.
     #>
 
     [CmdletBinding()]
@@ -22,12 +22,8 @@ function Get-TuneFileContent {
         [string[]]$Id
     )
     process {
-        foreach ($fileid in $Id) {
-            $params = @{
-                Uri    = "$script:baseUrl/files/$fileid/content"
-                Method = "GET"
-            }
-            Invoke-RestMethod2 @params
+        foreach ($fileId in $Id) {
+            Get-OpenAIFileContent -FileId $fileId
         }
     }
 }

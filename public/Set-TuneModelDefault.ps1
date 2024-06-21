@@ -1,35 +1,41 @@
 function Set-TuneModelDefault {
     <#
     .SYNOPSIS
-    Sets your preferred model as the default, making it easier to manage and interact with that model in future tasks.
+    Sets the default model for fine-tuning operations.
 
     .DESCRIPTION
-    This command helps you set a default model that you'll use often, saving you time and effort. Once a default model is set, it becomes your go-to model for various operations, streamlining your workflow. The command also returns details of the newly set default model for your reference.
+    Set-TuneModelDefault allows you to set the default model that will be used for fine-tuning operations when no specific model is specified.
 
     .PARAMETER Model
-    The name of the model to set as default.
+    The model to set as default. Can be one of the predefined models or a fine-tuned model (starting with "ft:").
+    Default is "gpt-3.5-turbo-0125".
 
     .PARAMETER Latest
-    Use this switch to automatically set the most recently created model as the default. This is helpful when you've created multiple models and want to quickly switch to using the latest one.
+    If specified, sets the most recently created model as the default.
 
     .EXAMPLE
-    Set-TuneModelDefault -Model text-davinci-002
+    Set-TuneModelDefault -Model gpt-3.5-turbo-0125
 
-    This command sets the model with the name text-davinci-002 as the default model.
+    Sets gpt-3.5-turbo-0125 as the default model for fine-tuning operations.
 
     .EXAMPLE
-    Get-TuneModel | Out-GridView -Passthru | Set-TuneModelDefault
+    Set-TuneModelDefault -Model ft:gpt-3.5-turbo-0613:my-org:custom_model:7p4lURx
 
-    This command sets the model obtained from Get-TuneModel as the default.
+    Sets a custom fine-tuned model as the default for fine-tuning operations.
 
     .EXAMPLE
     Set-TuneModelDefault -Latest
 
-    This command sets the most recently created model as the default, making it easier to start using new models right away.
+    Sets the most recently created model as the default for fine-tuning operations.
     #>
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipelineByPropertyName)]
+        [ArgumentCompleter({
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
+            })]
+        [ValidateScript({ ValidateModelName $_ })]
         [Alias("ModelName", "model_name", "id")]
         [string]$Model = "gpt-3.5-turbo-0125",
         [switch]$Latest

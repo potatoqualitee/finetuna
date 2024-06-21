@@ -26,6 +26,7 @@ function Get-Embedding {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
+        [Alias("Query")]
         [string]$Text,
         [ValidateSet(
             "text-embedding-ada-002",
@@ -60,26 +61,19 @@ function Get-Embedding {
     }
     process {
         $preprocessText = Repair-Text -Text $Text
-        $url = "$script:baseUrl/embeddings"
-        $body = @{
-            model = $Model
-            input = $preprocessText
-        } | ConvertTo-Json
 
-        Write-Verbose "Creating embedding for: $body"
+        Write-Verbose "Creating embedding for: $preprocessText"
 
         $params = @{
-            Uri         = $url
-            Method      = "POST"
-            ContentType = "application/json"
-            Body        = $body
+            Text  = $preprocessText
+            Model = $Model
         }
 
-        $result = Invoke-RestMethod2 @params
+        $result = Request-Embeddings @params
         if ($Raw) {
             $result
         } else {
-            $result.embedding
+            $result.data.embedding
         }
     }
 }

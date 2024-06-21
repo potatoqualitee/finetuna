@@ -4,6 +4,19 @@
   <img src="./logo.png"/>
 </p>
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Command Overview](#command-overview)
+- [Azure OpenAI Services](#azure-openai-services)
+- [Configuration](#configuration)
+- [Examples](#examples)
+- [Removing Files and Models](#removing-files-and-models)
+
 ## Introduction
 
 finetuna is designed to simplify the fine-tuning of OpenAI models. Train your models and interact with them—all through PowerShell.
@@ -13,7 +26,7 @@ Right now, the awesome functionality is that you can pipe a whole directory of j
 ## Prerequisites
 
 - PowerShell (any version)
-- OpenAI API Key
+- OpenAI API Key or Azure OpenAI API Key
 
 ## Installation
 
@@ -36,7 +49,7 @@ Right now, the awesome functionality is that you can pipe a whole directory of j
     $env:OpenAIKey = "sk-fake-T3BlbFJi7vpHiKhyYKy8aUT3Blbk"
     ```
    You may also want to put it in your $profile.
----
+
 ## Quick Start
 
 ### Train* a whole bot in one line
@@ -55,31 +68,11 @@ Use a bunch of json files to train or "fine tune" a model to make a bot. `Append
 
 Drop that append parameter and train a bunch of models with a bunch of jsonl files
 
-## Quick command overview
-
 ```powershell
     Get-ChildItem .\sample\totbot*.jsonl | Create-CustomModel
 ```
-| Command Name       | Description                                        |
-|--------------------|----------------------------------------------------|
-| Create-CustomModel | An alias for New-TuneModel                         |
-| Invoke-TunedChat   | Initiates a chat session with any model            |
-| Get-TuneFile       | Retrieves a list or a specific tuning file         |
-| Get-TuneFileContent| Reads the content of a list or specific tuning file|
-| Get-TuneJob        | Retrieves a list or details of a specific tuning job|
-| Get-TuneJobEvent   | Fetches events for a list or specific tuning job   |
-| Get-TuneModel      | Retrieves a list or a specific tuning model        |
-| Get-TuneModelDefault| Gets the default model that Invoke-TuneChat uses|
-| Invoke-TuneChat    | Initiates a chat session with a tuning model       |
-| New-TuneModel      | Creates a new tuning model                         |
-| Remove-TuneFile    | Deletes a specific tuning file                     |
-| Remove-TuneModel   | Deletes a specific tuning model                    |
-| Send-TuneFile      | Sends a file for tuning                            |
-| Set-TuneModelDefault| Sets the default model that Invoke-TuneChat will use|
-| Start-TuneJob      | Starts a new tuning job                            |
-| Stop-TuneJob       | Stops a running tuning job                         |
 
-### Usage
+## Usage
 
 1. **Send Files**:
    Use `Send-TuneFile` to upload your training files.
@@ -95,46 +88,117 @@ Drop that append parameter and train a bunch of models with a bunch of jsonl fil
     Get-TuneFile | Select-Object -Last 1
     ```
 
-
-1. **Start Training**:
+3. **Start Training**:
 
    Once your files are ready, start the training job.
     ```powershell
     Get-TuneFile | Out-GridView -Passthru | Start-TuneJob
     ```
 
-### Removing Files and Models
+## Command Overview
 
-#### Remove Specific File
-Use `Remove-TuneFile` to delete a specific file that you have uploaded. Supports piping from `Get-TuneFile`.
+| Command Name       | Description                                        |
+|--------------------|----------------------------------------------------|
+| Create-CustomModel | An alias for New-TuneModel                         |
+| Invoke-TunedChat   | Initiates a chat session with any model            |
+| Get-TuneFile       | Retrieves a list or a specific tuning file         |
+| Get-TuneFileContent| Reads the content of a list or specific tuning file|
+| Get-TuneJob        | Retrieves a list or details of a specific tuning job|
+| Get-TuneJobEvent   | Fetches events for a list or specific tuning job   |
+| Get-TuneModel      | Retrieves a list or a specific tuning model        |
+| Get-TuneModelDefault| Gets the default model that Invoke-TuneChat uses  |
+| Invoke-TuneChat    | Initiates a chat session with a tuning model       |
+| New-TuneModel      | Creates a new tuning model                         |
+| Remove-TuneFile    | Deletes a specific tuning file                     |
+| Remove-TuneModel   | Deletes a specific tuning model                    |
+| Send-TuneFile      | Sends a file for tuning                            |
+| Set-TuneModelDefault| Sets the default model that Invoke-TuneChat will use|
+| Start-TuneJob      | Starts a new tuning job                            |
+| Stop-TuneJob       | Stops a running tuning job                         |
+
+## Azure OpenAI Services
+
+finetuna also supports Azure OpenAI services. To use Azure, you need to set up the provider using the `Set-TuneProvider` command:
+
+```powershell
+$splat = @{
+    Provider   = "Azure"
+    ApiKey     = "your-azure-api-key"
+    ApiBase    = "https://your-azure-endpoint.openai.azure.com/"
+    Deployment = "your-deployment-name"
+}
+Set-TuneProvider @splat
+```
+
+### Azure FAQ
+
+1. **Default Quota**: The default quota for Azure OpenAI services is relatively low. If you're experiencing limitations, consider requesting an increase in your quota through the Azure portal.
+
+2. **Model Compatibility**: If your assistant isn't working as expected, try changing the model in your deployment to ensure your deployment is using a compatible model.
+
+3. **API Versions**: Make sure you're using a compatible API version. Check the Azure documentation for the latest supported versions.
+
+4. **Deployment Name**: When setting up the OpenAI provider for Azure, ensure you're using the correct deployment name. This is different from the model name and is specific to your Azure OpenAI resource.
+
+5. **Region Availability**: Azure OpenAI services may not be available in all Azure regions. Ensure you're using a supported region for your deployment.
+
+## Configuration
+
+### Persisting OpenAI Provider Configuration
+
+You can persist the OpenAI provider configuration to a JSON file using the `Set-TuneProvider` command. This allows you to save the configuration for future sessions:
+
+```powershell
+Set-TuneProvider -Provider OpenAI -ApiKey "your-openai-api-key"
+```
+
+### Resetting OpenAI Provider Configuration
+
+To reset the OpenAI provider configuration, use the `Clear-TuneProvider` command:
+
+```powershell
+Clear-TuneProvider
+```
+
+This command will remove the persisted configuration file and reset the configuration to its default state.
+
+## Examples
+
+```powershell
+# Upload training files
+Get-ChildItem .\sample\totbot*.jsonl | Send-TuneFile
+
+# Start a training job
+Get-TuneFile | Out-GridView -Passthru | Start-TuneJob
+
+# Chat with your fine-tuned model
+Invoke-TunedChat -Message "Tell me about cats"
+```
+
+## Removing Files and Models
+
+### Remove Specific File
+Use `Remove-TuneFile` to delete a specific file that you have uploaded.
 
 ```powershell
 Get-TuneFile | Where-Object Name -eq "sample_file.jsonl" | Remove-TuneFile
 ```
 
-#### Remove Last Uploaded File
-Use `Remove-TuneFile` to delete the last file that was uploaded. This also pipes from `Get-TuneFile`.
-
+### Remove Last Uploaded File
 ```powershell
 Get-TuneFile | Select-Object -Last 1 | Remove-TuneFile
 ```
 
-### Removing Models
-
-#### Remove Specific Model
-Use `Remove-TuneModel` to delete a specific tuning model. Supports piping from `Get-TuneModel`.
+### Remove Specific Model
+Use `Remove-TuneModel` to delete a specific tuning model.
 
 ```powershell
 Get-TuneModel | Where-Object Name -eq "sample_model" | Remove-TuneModel
 ```
 
-#### Remove All Models
-Use `Remove-TuneModel` to delete all models. Be careful with this one!
-
+### Remove All Models
 ```powershell
 Get-TuneModel -Custom | Remove-TuneModel -Confirm:$false
 ```
 
-Sorry these docs could be better, I gotta work on a presentation so I'll fix them later.
-
-Learn more here: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/fine-tuning-considerations
+Learn more about fine-tuning here: https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/fine-tuning-considerations
