@@ -26,6 +26,7 @@ function Get-Embedding {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
+        [Alias("Query")]
         [string]$Text,
         [ValidateSet(
             "text-embedding-ada-002",
