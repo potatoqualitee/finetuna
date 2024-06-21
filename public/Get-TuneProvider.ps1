@@ -38,22 +38,52 @@ function Get-TuneProvider {
             Write-Warning "No persisted configuration found."
         }
     } else {
-        $apiKey = $env:OpenAIKey
-        if ($apiKey) {
-            if (-not $PlainText) {
-                $apiKey = $apiKey.Substring(0, 3) + "..." + $apiKey.Substring($apiKey.Length - 2)
+        $context = Get-OpenAIContext
+        if ($context.ApiBase) {
+            if ($context.ApiKey) {
+                $decryptedkey = Get-DecryptedString -SecureString $context.ApiKey
+                if ($decryptedkey) {
+                    $splat = @{
+                        Source               = $decryptedkey
+                        First                = $first
+                        Last                 = 2
+                        MaxNumberOfAsterisks = 45
+                    }
+                    $maskedkey = Get-MaskedString @splat
+                } else {
+                    $maskedkey = $null
+                }
             }
-        }
 
-        [pscustomobject]@{
-            ApiKey       = $apiKey
-            AuthType     = $PSDefaultParameterValues["*:AuthType"]
-            ApiType      = if ($PSDefaultParameterValues["*:ApiBase"]) { "Azure" } else { "OpenAI" }
-            Deployment   = $PSDefaultParameterValues["*:Deployment"]
-            ApiBase      = $PSDefaultParameterValues["*:ApiBase"]
-            ApiVersion   = $PSDefaultParameterValues["*:ApiVersion"]
-            Organization = $null  # Add this if you implement organization support
-            CurrentModel = $script:currentmodel
+            if ($PlainText) {
+                $maskedkey = $decryptedkey
+            }
+
+            [pscustomobject]@{
+                ApiKey       = $maskedkey
+                AuthType     = $context.AuthType
+                ApiType      = $context.ApiType
+                Deployment   = $PSDefaultParameterValues['*:Deployment']
+                ApiBase      = $context.ApiBase
+                ApiVersion   = $context.ApiVersion
+                Organization = $context.Organization
+            }
+        } else {
+            $maskedkey = Get-ApiKey
+            if ($maskedkey) {
+                $auth = "openai"
+            } else {
+                $auth = $null
+            }
+            [pscustomobject]@{
+                ApiKey       = $maskedkey
+                AuthType     = $auth
+                ApiType      = $auth
+                Deployment   = $null
+                ApiBase      = $null
+                ApiVersion   = $null
+                Organization = $null
+            }
         }
     }
 }

@@ -39,34 +39,22 @@ function Get-TuneModel {
     process {
         if ($Model) {
             foreach ($modelname in $Model) {
-                $url = "$script:baseUrl/models/$modelname"
-                Write-Verbose "Getting $url"
-                $params = @{
-                    Uri    = $url
-                    Method = "GET"
-                }
-
                 if ($Custom) {
-                    Invoke-RestMethod2 @params | Where-Object owned_by -notmatch "openai|system"
+                    Get-OpenAIModel -Model $modelname | Where-Object owned_by -notmatch "openai|system"
                 } elseif ($Latest) {
-                    Invoke-RestMethod2 @params | Select-Object -Last 1
+                    Get-OpenAIModel -Model $modelname | Select-Object -Last 1
                 } else {
-                    Invoke-RestMethod2 @params
+                    Get-OpenAIModel -Model $modelname
                 }
             }
         } else {
-            $url = "$script:baseUrl/models"
-            Write-Verbose "Getting $url"
-            $params = @{
-                Uri    = $url
-                Method = "GET"
-            }
+
             if ($Custom) {
-                Invoke-RestMethod2 @params | Where-Object owned_by -notmatch "openai|system"
+                Get-OpenAIModel | Where-Object owned_by -notmatch "openai|system"
             } elseif ($Latest) {
-                Invoke-RestMethod2 @params | Select-Object -Last 1
+                Get-OpenAIModel | Select-Object -Last 1
             } else {
-                Invoke-RestMethod2 @params
+                Get-OpenAIModel
             }
         }
     }

@@ -14,18 +14,40 @@ function Clear-TuneProvider {
     [CmdletBinding()]
     param ()
 
+    $script:currentmodel = "gpt-4o"
+
     $configFile = Join-Path -Path $script:configdir -ChildPath config.json
 
     if (Test-Path -Path $configFile) {
         Remove-Item -Path $configFile -Force
     }
 
-    $script:currentmodel = "gpt-4o"
-    $env:OpenAIKey = $null
-    $PSDefaultParameterValues["*:ApiKey"] = $null
+    $null = Clear-OpenAIContext
+    $env:OPENAI_API_KEY = $null
+    $env:OPENAI_API_BASE = $null
 
-    # Clear any other module-specific variables or settings here
+    if ($global:OPENAI_API_BASE) {
+        Write-Verbose "Removing OPENAI_API_KEY from global scope."
+        $null = Remove-Variable -Name OPENAI_API_BASE -Scope Global -Force
+    }
+    if ($global:OPENAI_API_KEY) {
+        Write-Verbose "Removing OPENAI_API_KEY from global scope."
+        $null = Remove-Variable -Name OPENAI_API_KEY -Scope Global -Force
+    }
+    if ($env:OPENAI_API_KEY) {
+        Write-Verbose "Removing OPENAI_API_KEY from environment."
+        $null = Remove-Variable -Name OPENAI_API_KEY -Scope Environment -Force
+    }
+    if ($env:OPENAI_API_BASE) {
+        Write-Verbose "Removing OPENAI_API_BASE from environment."
+        $null = Remove-Variable -Name OPENAI_API_BASE -Scope Environment -Force
+    }
+    $defaults = Get-Variable -Name PSDefaultParameterValues -Scope Global -ValueOnly
+    if ($defaults["*:ApiKey"]) {
+        Write-Verbose "Removing default ApiKey from PSDefaultParameterValues."
+        $null = $defaults.Remove("*:ApiKey")
+    }
 
-    Write-Verbose "OpenAI provider configuration for finetuna reset to default."
-    Get-TuneProvider
+    Write-Verbose "OpenAI provider configuration reset to default."
+    Get-OpenAIProvider
 }

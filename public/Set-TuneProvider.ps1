@@ -62,28 +62,39 @@ function Set-TuneProvider {
         }
 
         if (-not $ApiKey) {
-            $ApiKey = $env:OpenAIKey
+            $ApiKey = Get-ApiKey -PlainText
         }
-
-        $null = Clear-TuneProvider
+        $null = Clear-OpenAIProvider
 
         if ($ApiType -eq 'Azure') {
             # Set context for Azure
-            $env:OpenAIKey = $ApiKey
-            $PSDefaultParameterValues["*:ApiKey"] = $ApiKey
-            $PSDefaultParameterValues["*:ApiBase"] = $ApiBase
-            $PSDefaultParameterValues["*:ApiVersion"] = $ApiVersion
-            $PSDefaultParameterValues["*:AuthType"] = $AuthType
+            $splat = @{
+                ApiType  = 'Azure'
+                AuthType = $AuthType
+                ApiKey   = $ApiKey
+                ApiBase  = $ApiBase
+            }
+            if ($Organization) {
+                $splat.Organization = $Organization
+            }
+            if ($ApiVersion) {
+                $splat.ApiVersion = $ApiVersion
+            }
             if ($Deployment) {
-                $PSDefaultParameterValues["*:Deployment"] = $Deployment
-                $PSDefaultParameterValues["*:Model"] = $Deployment
+                Set-Variable -Scope 1 -Name PSDefaultParameterValues -Force -ErrorAction SilentlyContinue -Value @{
+                    '*:Deployment' = $Deployment
+                    '*:Model'      = $Deployment
+                }
             }
         } else {
             # Set context for OpenAI
-            $env:OpenAIKey = $ApiKey
-            $PSDefaultParameterValues["*:ApiKey"] = $ApiKey
-            $PSDefaultParameterValues["*:AuthType"] = 'OpenAI'
+            $splat = @{
+                ApiType  = 'OpenAI'
+                AuthType = 'OpenAI'
+                ApiKey   = $ApiKey
+            }
         }
+        $null = Set-OpenAIContext @splat
 
         if (-not $NoPersist) {
             $configFile = Join-Path -Path $script:configdir -ChildPath config.json
@@ -103,6 +114,6 @@ function Set-TuneProvider {
                 Write-Error "Error persisting configuration file: $_"
             }
         }
-        Get-TuneProvider
+        Get-OpenAIProvider
     }
 }
