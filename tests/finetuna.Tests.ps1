@@ -14,13 +14,10 @@ Describe "finetuna Module Tests" {
                 ApiType = 'openai'
                 ApiKey  = $env:OPENAI_API_KEY
             }
-            write-warning $env:OPENAI_API_KEY
             $provider = Set-TuneProvider @splat
             $provider.ApiKey | Should -Not -BeNullOrEmpty
             $provider.ApiType | Should -Be 'openai'
         }
-        # Now that it's set
-        Get-TuneJob | Where-Object status -notin 'failed', 'succeeded' | Stop-TuneJob -Confirm:$false
     }
 
     Context "Get-TuneProvider" {
@@ -47,6 +44,7 @@ Describe "finetuna Module Tests" {
 
     Context "Start-TuneJob" {
         It "Should start a fine-tuning job" {
+            Get-TuneJob | Where-Object status -notin 'failed', 'succeeded' | Stop-TuneJob -Confirm:$false
             $file = Get-TuneFile | Where-Object { $_.filename -eq "totbot-tee-tune.jsonl" }
             $result = Start-TuneJob -FileId $file.id -Model "gpt-3.5-turbo-0613"
             $result.id | Should -Match '^ftjob-'
