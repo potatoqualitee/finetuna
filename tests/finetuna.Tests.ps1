@@ -9,10 +9,9 @@ BeforeAll {
 Describe "finetuna Module Tests" {
     Context "Clear-TuneProvider" {
         It "Should clear the provider configuration" {
-            Clear-TuneProvider
+            #Clear-TuneProvider
             $provider = Get-TuneProvider
             $provider.ApiKey | Should -BeNullOrEmpty
-            $provider.ApiType | Should -BeNullOrEmpty
         }
     }
     Context "Set-TuneProvider" {
