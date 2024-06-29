@@ -25,7 +25,6 @@ function Get-OpenAIAPIParameter {
                 MaxRetryCount = $context.MaxRetryCount
             }
         } else {
-            Get-OpenAIContext | Out-String | Write-Warning
             throw "No API key found in the context. Please set the API key using Set-TuneProvider."
         }
     }
