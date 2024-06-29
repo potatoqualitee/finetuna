@@ -10,7 +10,7 @@ Describe "finetuna Module Tests" {
     Context "Clear-TuneProvider" {
         It "Should clear the provider configuration" {
             #Clear-TuneProvider
-            $provider = Get-TuneProvider
+            $provider = Get-OpenAIContext
             $provider.ApiKey | Should -BeNullOrEmpty
         }
     }
