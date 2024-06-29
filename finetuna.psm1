@@ -70,7 +70,9 @@ if (-not (Test-Path -Path $script:configdir)) {
 
 $configFile = Join-Path -Path $script:configdir -ChildPath config.json
 
-if ((-not (Get-OpenAIContext).ApiKey) -and (Test-Path -Path $configFile)) {
+$apiKey = (Get-OpenAIContext).ApiKey
+
+if (-not $apiKey -and (Test-Path -Path $configFile)) {
     $persisted = Get-Content -Path $configFile -Raw | ConvertFrom-Json
     $splat = @{}
     if ($persisted.ApiKey) { $splat.ApiKey = $persisted.ApiKey }
@@ -81,4 +83,9 @@ if ((-not (Get-OpenAIContext).ApiKey) -and (Test-Path -Path $configFile)) {
     if ($persisted.AuthType) { $splat.AuthType = $persisted.AuthType }
     if ($persisted.Organization) { $splat.Organization = $persisted.Organization }
     $null = Set-TuneProvider @splat
+}
+
+if ($apiKey) {
+    $PSdefaultParameterValues["Initialize-APIKey:ApiKey"] = $apiKey
+    Write-Warning $PSdefaultParameterValues["Initialize-APIKey:ApiKey"]
 }
