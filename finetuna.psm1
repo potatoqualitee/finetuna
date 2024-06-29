@@ -43,6 +43,11 @@ foreach ($file in (Get-ChildItem -Path $publicdir -Filter *.ps1)) {
     . Import-ModuleFile -Path $file.FullName
 }
 
+# Import all internal functions
+foreach ($function in (Get-ChildItem "$ModuleRoot\private\" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
+    . Import-ModuleFile -Path $function.FullName
+}
+
 $PSDefaultParameterValues["*:NoTypeInformation"] = $true
 
 Set-Alias -Name Invoke-TunedChat -Value Invoke-TuneChat
