@@ -81,28 +81,13 @@ function Remove-OpenAIModel {
                 AdditionalHeaders = $AdditionalHeaders
                 AdditionalBody    = $AdditionalBody
             }
-            $Response = Invoke-OpenAIAPIRequest @params | ConvertFrom-Json
-
-            # error check
-            if ($null -eq $Response) {
-                continue
-            }
-            #endregion
-
-            #region Parse response object
             try {
-                $Response = $Response | ConvertFrom-Json -ErrorAction Stop
+                $Response = Invoke-OpenAIAPIRequest @params | ConvertFrom-Json
+                Write-Verbose ('The Models with id "{0}" has been deleted.' -f $Response.id)
             } catch {
-                Write-Error -Exception $_.Exception
+                Write-Error -Exception $_
                 continue
             }
-            #endregion
-
-            #region Verbose Output
-            if ($Response.deleted) {
-                Write-Verbose ('The Models with id "{0}" has been deleted.' -f $Response.id)
-            }
-            #endregion
         }
     }
 }
