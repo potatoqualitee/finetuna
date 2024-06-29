@@ -4,6 +4,7 @@ BeforeAll {
         throw "OPENAI_API_KEY environment variable is not set."
     }
     Import-Module ./finetuna.psd1
+    $global:OPENAI_API_KEY = $env:OPENAI_API_KEY
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
 }
 
@@ -17,6 +18,7 @@ Describe "finetuna Module Tests" {
             $provider = Set-TuneProvider @splat
             $provider.ApiKey | Should -Not -BeNullOrEmpty
             $provider.ApiType | Should -Be 'openai'
+            (Get-OpenAIContext).ApiKey | Should -Not -BeNullOrEmpty
         }
     }
 
