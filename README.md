@@ -44,11 +44,11 @@ Right now, the awesome functionality is that you can pipe a whole directory of j
     Dependencies will be installed automatically.
 
 3. **Get and set your OpenAI API Key**:
-   Get/Create your OpenAI API key from [ https://platform.openai.com/account/api-keys]( https://platform.openai.com/account/api-keys) and then set as *plain text* with `$env:OpenAIKey`:
+   Get/Create your OpenAI API key from [ https://platform.openai.com/account/api-keys]( https://platform.openai.com/account/api-keys) and then set as *plain text* with `$env:OPENAI_API_KEY`:
     ```powershell
-    $env:OpenAIKey = "sk-fake-T3BlbFJi7vpHiKhyYKy8aUT3Blbk"
+    $env:OPENAI_API_KEY = "sk-fake-T3BlbFJi7vpHiKhyYKy8aUT3Blbk"
     ```
-   You may also want to put it in your $profile.
+   You may also want to put it in your $profile. `$env:OpenAIKey` also works to provide compatibility with other PowerShell modules.
 
 ## Quick Start
 
@@ -99,22 +99,32 @@ Drop that append parameter and train a bunch of models with a bunch of jsonl fil
 
 | Command Name       | Description                                        |
 |--------------------|----------------------------------------------------|
+| Clear-TuneProvider | Clears the OpenAI provider configuration for finetuna |
+| Compare-Embedding  | Calculates the similarity between two embedding vectors |
 | Create-CustomModel | An alias for New-TuneModel                         |
-| Invoke-TunedChat   | Initiates a chat session with any model            |
+| Get-Embedding      | Creates an embedding vector for the given text     |
 | Get-TuneFile       | Retrieves a list or a specific tuning file         |
 | Get-TuneFileContent| Reads the content of a list or specific tuning file|
 | Get-TuneJob        | Retrieves a list or details of a specific tuning job|
 | Get-TuneJobEvent   | Fetches events for a list or specific tuning job   |
 | Get-TuneModel      | Retrieves a list or a specific tuning model        |
 | Get-TuneModelDefault| Gets the default model that Invoke-TuneChat uses  |
+| Get-TuneProvider   | Retrieves the current OpenAI provider configuration for finetuna |
 | Invoke-TuneChat    | Initiates a chat session with a tuning model       |
+| Invoke-TunedChat   | Initiates a chat session with any model (alias for Invoke-TuneChat) |
+| Measure-TuneToken  | Measures the token usage of the provided text      |
 | New-TuneModel      | Creates a new tuning model                         |
 | Remove-TuneFile    | Deletes a specific tuning file                     |
 | Remove-TuneModel   | Deletes a specific tuning model                    |
+| Request-TuneFileReview | Submits a file to Invoke-TuneChat for improvement suggestions |
 | Send-TuneFile      | Sends a file for tuning                            |
 | Set-TuneModelDefault| Sets the default model that Invoke-TuneChat will use|
+| Set-TuneProvider   | Configures the OpenAI or Azure OpenAI service context for finetuna |
+| Start-TuneDemo     | Launches the finetuna demo notebook |
 | Start-TuneJob      | Starts a new tuning job                            |
 | Stop-TuneJob       | Stops a running tuning job                         |
+| Test-TuneFile      | Validates tune files before sending to model for training |
+| Wait-TuneJob       | Waits for a fine-tuning job to complete            |
 
 ## Azure OpenAI Services
 
