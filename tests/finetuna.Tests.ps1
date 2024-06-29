@@ -6,7 +6,6 @@ BeforeAll {
     Import-Module ./finetuna.psd1
     $global:OPENAI_API_KEY = $PSDefaultParameterValues['Initialize-APIKey:ApiKey'] = $env:OPENAI_API_KEY
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
-    write-warning $PSDefaultParameterValues['Initialize-APIKey:ApiKey']
 }
 
 Describe "finetuna Module Tests" {
@@ -125,6 +124,7 @@ Describe "finetuna Module Tests" {
         It "Should generate an embedding for the given text" {
             $result = Get-Embedding -Text "Hello, world!"
             $result | Should -Not -BeNullOrEmpty
+            $PSDefaultParametervalues
         }
     }
 
