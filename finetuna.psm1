@@ -7,7 +7,6 @@ if (-not (Get-Module PSOpenAI)) {
 # Get PSOpenAI's private functions
 $modulepath = Get-Module -Name PSOpenAI -ListAvailable | Select-Object -First 1
 $privatedir = Join-Path -Path $modulepath.ModuleBase -ChildPath Private
-$publicdir = Join-Path -Path $modulepath.ModuleBase -ChildPath Public
 function ValidateModelName {
     param([string]$ModelName)
     if ($ModelName -notin $script:ValidModels -and -not $ModelName.StartsWith("ft:")) {
@@ -38,11 +37,6 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\private\" -Filter "*.ps1" -Rec
 # Import all public functions
 foreach ($function in (Get-ChildItem "$ModuleRoot\public" -Filter "*.ps1" -Recurse -ErrorAction Ignore)) {
     . Import-ModuleFile -Path $function.FullName
-}
-
-# i need these psopenai public things to use my internal functions
-foreach ($file in (Get-ChildItem -Path $publicdir -Filter *.ps1)) {
-    #. Import-ModuleFile -Path $file.FullName
 }
 
 $PSDefaultParameterValues["*:NoTypeInformation"] = $true
