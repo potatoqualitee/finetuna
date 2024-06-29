@@ -84,8 +84,3 @@ if (-not $apiKey -and (Test-Path -Path $configFile)) {
     if ($persisted.Organization) { $splat.Organization = $persisted.Organization }
     $null = Set-TuneProvider @splat
 }
-
-if ($apiKey) {
-    $PSdefaultParameterValues["Initialize-APIKey:ApiKey"] = $apiKey
-    Write-Warning $PSdefaultParameterValues["Initialize-APIKey:ApiKey"]
-}
