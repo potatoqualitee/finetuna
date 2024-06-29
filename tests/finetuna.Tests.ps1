@@ -6,6 +6,11 @@ BeforeAll {
     Import-Module ./finetuna.psd1
     $global:OPENAI_API_KEY = $PSDefaultParameterValues['Initialize-APIKey:ApiKey'] = $env:OPENAI_API_KEY
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
+    $splat = @{
+        ApiType = 'openai'
+        ApiKey  = $env:OPENAI_API_KEY
+    }
+    Set-TuneProvider @splat
 }
 
 Describe "finetuna Module Tests" {
