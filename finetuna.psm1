@@ -81,17 +81,16 @@ if (Test-Path -Path $configFile) {
     if ($persisted.AuthType) { $splat.AuthType = $persisted.AuthType }
     if ($persisted.Organization) { $splat.Organization = $persisted.Organization }
     $null = Set-TuneProvider @splat
-}
 
-
-# get context values to pass to Get-OpenAIAPIParameter
-$context = Get-OpenAIContext
-$PSDefaultParameterValues["Get-OpenAIAPIParameter:Parameters"] = @{
-    ApiKey        = $context.ApiKey
-    AuthType      = $context.AuthType
-    Organization  = $context.Organization
-    ApiBase       = $context.ApiBase
-    ApiVersion    = $context.ApiVersion
-    TimeoutSec    = $context.TimeoutSec
-    MaxRetryCount = $context.MaxRetryCount
+    # get context values to pass to Get-OpenAIAPIParameter
+    $context = Get-OpenAIContext
+    $PSDefaultParameterValues["Get-OpenAIAPIParameter:Parameters"] = @{
+        ApiKey        = $context.ApiKey
+        AuthType      = $context.AuthType
+        Organization  = $context.Organization
+        ApiBase       = $context.ApiBase
+        ApiVersion    = $context.ApiVersion
+        TimeoutSec    = $context.TimeoutSec
+        MaxRetryCount = $context.MaxRetryCount
+    }
 }
