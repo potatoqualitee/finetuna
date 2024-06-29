@@ -1,8 +1,6 @@
 
 BeforeAll {
-    $apiKey = $env:OPENAI_API_KEY
-
-    if (-not $apiKey) {
+    if (-not $env:OPENAI_API_KEY) {
         throw "OPENAI_API_KEY environment variable is not set."
     }
     Import-Module ./finetuna.psd1
@@ -15,7 +13,7 @@ Describe "finetuna Module Tests" {
         It "Should set the API key and configuration" {
             $splat = @{
                 ApiType = 'openai'
-                ApiKey  = $apiKey
+                ApiKey  = $env:OPENAI_API_KEY
             }
             $provider = Set-TuneProvider @splat
             $provider.ApiKey | Should -Not -BeNullOrEmpty
@@ -109,6 +107,14 @@ Describe "finetuna Module Tests" {
         }
     }
 
+    Context "Get-Embedding" {
+        It "Should generate an embedding for the given text" {
+            $result = Get-Embedding -Text "Hello, world!"
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+
     Context "Compare-Embedding" {
         It "Should compare embeddings and return similarities" {
             $embeddings = @{
@@ -119,14 +125,6 @@ Describe "finetuna Module Tests" {
             $result.Similarity | Should -Not -BeNullOrEmpty
         }
     }
-
-    Context "Get-Embedding" {
-        It "Should generate an embedding for the given text" {
-            $result = Get-Embedding -Text "Hello, world!"
-            $result | Should -Not -BeNullOrEmpty
-        }
-    }
-
     Context "Get-TuneFileContent" {
         It "Should retrieve the content of a file" {
             $file = Get-TuneFile | Select-Object -First 1
