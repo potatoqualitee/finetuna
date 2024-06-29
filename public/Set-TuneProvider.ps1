@@ -147,6 +147,7 @@ function Set-TuneProvider {
             TimeoutSec    = $context.TimeoutSec
             MaxRetryCount = $context.MaxRetryCount
         }
+        $currentDefaults['Initialize-APIKey:ApiKey'] = $context.ApiKey
 
         $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
 
