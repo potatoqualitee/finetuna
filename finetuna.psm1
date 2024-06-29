@@ -25,6 +25,7 @@ function Import-ModuleFile {
     else { $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($Path))), $null, $null) }
 }
 
+# import internal functions from PSOpenAI bc I have changes
 foreach ($file in (Get-ChildItem -Path $privatedir -Filter *.ps1)) {
     . Import-ModuleFile -Path $file.FullName
 }
@@ -39,6 +40,7 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\public" -Filter "*.ps1" -Recur
     . Import-ModuleFile -Path $function.FullName
 }
 
+# i need these psopenai public things to use my internal functions
 foreach ($file in (Get-ChildItem -Path $publicdir -Filter *.ps1)) {
     . Import-ModuleFile -Path $file.FullName
 }

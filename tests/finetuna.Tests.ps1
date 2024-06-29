@@ -1,5 +1,5 @@
 
-BeforeAll {
+BeforeEach {
     if (-not $env:OPENAI_API_KEY) {
         throw "OPENAI_API_KEY environment variable is not set."
     }
@@ -14,6 +14,14 @@ BeforeAll {
 }
 
 Describe "finetuna Module Tests" {
+    Context "Clear-TuneProvider" {
+        It "Should clear the provider configuration" {
+            Clear-TuneProvider
+            $provider = Get-TuneProvider
+            $provider.ApiKey | Should -BeNullOrEmpty
+            $provider.ApiType | Should -BeNullOrEmpty
+        }
+    }
     Context "Set-TuneProvider" {
         It "Should set the API key and configuration" {
             $splat = @{
@@ -24,17 +32,6 @@ Describe "finetuna Module Tests" {
             $provider.ApiKey | Should -Not -BeNullOrEmpty
             $provider.ApiType | Should -Be 'openai'
             (Get-OpenAIContext).ApiKey | Should -Not -BeNullOrEmpty
-        }
-
-        $context = Get-OpenAIContext
-        $global:PSDefaultParameterValues['Get-OpenAIAPIParameter:Parameters'] = @{
-            ApiKey        = $context.ApiKey
-            AuthType      = $context.AuthType
-            Organization  = $context.Organization
-            ApiBase       = $context.ApiBase
-            ApiVersion    = $context.ApiVersion
-            TimeoutSec    = $context.TimeoutSec
-            MaxRetryCount = $context.MaxRetryCount
         }
     }
 
@@ -113,15 +110,6 @@ Describe "finetuna Module Tests" {
             $file = Get-TuneFile | Where-Object filename -eq totbot-tee-tune.jsonl
             $result = $file | Remove-TuneFile -Confirm:$false
             $result.Status | Should -Be 'Removed'
-        }
-    }
-
-    Context "Clear-TuneProvider" {
-        It "Should clear the provider configuration" {
-            Clear-TuneProvider
-            $provider = Get-TuneProvider
-            $provider.ApiKey | Should -BeNullOrEmpty
-            $provider.ApiType | Should -BeNullOrEmpty
         }
     }
 
