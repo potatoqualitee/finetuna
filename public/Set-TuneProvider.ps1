@@ -73,11 +73,13 @@ function Set-TuneProvider {
     )
     begin {
         # Retrieve the current PSDefaultParameterValues
-        $currentDefaults = Get-Variable -Scope 1 -Name PSDefaultParameterValues -ErrorAction SilentlyContinue
+        $defaultvalues = Get-Variable -Scope 1 -Name PSDefaultParameterValues -ErrorAction SilentlyContinue
 
         # Check if the variable exists, if not, initialize it as an empty hashtable
-        if (-not $currentDefaults) {
+        if (-not $defaultvalues) {
             $currentDefaults = @{}
+        } else {
+            $currentDefaults = $defaultvalues.Value
         }
     }
     process {
@@ -133,19 +135,16 @@ function Set-TuneProvider {
         }
         $null = Set-OpenAIContext @splat
 
-
         # get context values to pass to Get-OpenAIAPIParameter
         $context = Get-OpenAIContext
         $currentDefaults['Get-OpenAIAPIParameter:Parameters'] = @{
-            'Get-OpenAIAPIParameter:Parameters' = @{
-                ApiKey        = $context.ApiKey
-                AuthType      = $context.AuthType
-                Organization  = $context.Organization
-                ApiBase       = $context.ApiBase
-                ApiVersion    = $context.ApiVersion
-                TimeoutSec    = $context.TimeoutSec
-                MaxRetryCount = $context.MaxRetryCount
-            }
+            ApiKey        = $context.ApiKey
+            AuthType      = $context.AuthType
+            Organization  = $context.Organization
+            ApiBase       = $context.ApiBase
+            ApiVersion    = $context.ApiVersion
+            TimeoutSec    = $context.TimeoutSec
+            MaxRetryCount = $context.MaxRetryCount
         }
         Set-Variable -Scope 1 -Name PSDefaultParameterValues -Value $currentDefaults -Force
 
