@@ -138,7 +138,7 @@ function Set-TuneProvider {
 
         # get context values to pass to Get-OpenAIAPIParameter
         $context = Get-OpenAIContext
-        $currentDefaults['Get-OpenAIAPIParameter:Parameters'] = @{
+        $currentDefaults['Get-OpenAIAPIParameter:Parameters'] = $script:defaultapiparms = @{
             ApiKey        = $context.ApiKey
             AuthType      = $context.AuthType
             Organization  = $context.Organization
