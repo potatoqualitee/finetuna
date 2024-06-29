@@ -11,10 +11,11 @@ function Get-OpenAIAPIParameter {
         [hashtable]
         $Parameters = $script:defaultapiparms
     )
-    if (-not $Parameters) {
+    if (-not $Parameters.ApiKey) {
         # get context values to pass to Get-OpenAIAPIParameter
         $context = Get-OpenAIContext
         if ($context.ApiKey) {
+            write-warning $context.ApiKey
             $Parameters = @{
                 ApiKey        = $context.ApiKey
                 AuthType      = $context.AuthType
