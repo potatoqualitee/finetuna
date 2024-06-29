@@ -1,19 +1,17 @@
-
-BeforeEach {
-    if (-not $env:OPENAI_API_KEY) {
-        throw "OPENAI_API_KEY environment variable is not set."
-    }
-    Import-Module ./finetuna.psd1
-    $global:OPENAI_API_KEY = $PSDefaultParameterValues['Initialize-APIKey:ApiKey'] = $env:OPENAI_API_KEY
-    $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
-    $splat = @{
-        ApiType = 'openai'
-        ApiKey  = $env:OPENAI_API_KEY
-    }
-    Set-TuneProvider @splat
-}
-
 Describe "finetuna Module Tests" {
+    BeforeEach {
+        if (-not $env:OPENAI_API_KEY) {
+            throw "OPENAI_API_KEY environment variable is not set."
+        }
+        Import-Module ./finetuna.psd1
+        $global:OPENAI_API_KEY = $PSDefaultParameterValues['Initialize-APIKey:ApiKey'] = $env:OPENAI_API_KEY
+        $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
+        $splat = @{
+            ApiType = 'openai'
+            ApiKey  = $env:OPENAI_API_KEY
+        }
+        Set-TuneProvider @splat
+    }
     Context "Clear-TuneProvider" {
         It "Should clear the provider configuration" {
             Clear-TuneProvider
