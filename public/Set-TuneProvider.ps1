@@ -72,8 +72,9 @@ function Set-TuneProvider {
         [switch]$NoPersist
     )
     begin {
+        $PSDefaultParameterValues["*Var*:Scope"] = 1
         # Retrieve the current PSDefaultParameterValues
-        $defaultvalues = Get-Variable -Scope 1 -Name PSDefaultParameterValues -ErrorAction SilentlyContinue
+        $defaultvalues = Get-Variable -Name PSDefaultParameterValues -ErrorAction SilentlyContinue
 
         # Check if the variable exists, if not, initialize it as an empty hashtable
         if (-not $defaultvalues) {
@@ -92,7 +93,7 @@ function Set-TuneProvider {
             $currentDefaults['*:Model'] = $Deployment
 
             # Set the updated PSDefaultParameterValues back
-            Set-Variable -Scope 1 -Name PSDefaultParameterValues -Value $currentDefaults -Force
+            $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
             Get-TuneProvider
             return
         }
@@ -120,7 +121,7 @@ function Set-TuneProvider {
                 $currentDefaults['*:Model'] = $Deployment
 
                 # Set the updated PSDefaultParameterValues back
-                Set-Variable -Scope 1 -Name PSDefaultParameterValues -Value $currentDefaults -Force
+                $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
             }
         } else {
             # Set context for OpenAI
@@ -146,7 +147,7 @@ function Set-TuneProvider {
             TimeoutSec    = $context.TimeoutSec
             MaxRetryCount = $context.MaxRetryCount
         }
-        Set-Variable -Scope 1 -Name PSDefaultParameterValues -Value $currentDefaults -Force
+        $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
 
         if (-not $NoPersist) {
             $configFile = Join-Path -Path $script:configdir -ChildPath config.json

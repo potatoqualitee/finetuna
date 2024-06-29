@@ -70,7 +70,7 @@ if (-not (Test-Path -Path $script:configdir)) {
 
 $configFile = Join-Path -Path $script:configdir -ChildPath config.json
 
-if (Test-Path -Path $configFile) {
+if ((-not (Get-OpenAIContext).ApiKey) -and (Test-Path -Path $configFile)) {
     $persisted = Get-Content -Path $configFile -Raw | ConvertFrom-Json
     $splat = @{}
     if ($persisted.ApiKey) { $splat.ApiKey = $persisted.ApiKey }

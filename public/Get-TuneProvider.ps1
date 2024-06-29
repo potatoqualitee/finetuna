@@ -43,7 +43,7 @@ function Get-TuneProvider {
         Write-Verbose "Retrieving current session's OpenAI provider configuration."
         $context = Get-OpenAIContext
 
-        if ($context.ApiBase) {
+        if ($context.ApiKey) {
             Write-Verbose "Context found. Processing configuration."
 
             if ($context.ApiKey) {

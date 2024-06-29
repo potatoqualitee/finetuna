@@ -92,8 +92,8 @@ Describe "finetuna Module Tests" {
 
     Context "Remove-TuneFile" {
         It "Should delete a file used for fine-tuning" {
-            $file = Get-TuneFile | Where-Object { $_.filename -eq "totbot-tee-tune.jsonl" }
-            $result = Remove-TuneFile -Id $file.id -Confirm:$false
+            $file = Get-TuneFile | Where-Object filename -eq totbot-tee-tune.jsonl
+            $result = $file | Remove-TuneFile -Confirm:$false
             $result.Status | Should -Be 'Removed'
         }
     }
