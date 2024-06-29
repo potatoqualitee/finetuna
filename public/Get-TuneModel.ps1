@@ -36,28 +36,24 @@ function Get-TuneModel {
         [switch]$Custom,
         [switch]$Latest
     )
-    begin {
-        $PSDefaultParameterValues["Get-OpenAIModels:Raw"] = $true
-    }
     process {
         if ($Model) {
             foreach ($modelname in $Model) {
                 if ($Custom) {
-                    (Get-OpenAIModels -Name $modelname).data | Where-Object owned_by -notmatch "openai|system"
+                    Get-OpenAIModels -Name $modelname | Where-Object owned_by -notmatch "openai|system"
                 } elseif ($Latest) {
-                    (Get-OpenAIModels -Name $modelname).data | Select-Object -Last 1
+                    Get-OpenAIModels -Name $modelname | Select-Object -Last 1
                 } else {
-                    (Get-OpenAIModels -Name $modelname).data
+                    Get-OpenAIModels -Name $modelname
                 }
             }
         } else {
-
             if ($Custom) {
-                (Get-OpenAIModels).data | Where-Object owned_by -notmatch "openai|system"
+                Get-OpenAIModels | Where-Object owned_by -notmatch "openai|system"
             } elseif ($Latest) {
-                (Get-OpenAIModels).data | Select-Object -Last 1
+                Get-OpenAIModels | Select-Object -Last 1
             } else {
-                (Get-OpenAIModels).data
+                Get-OpenAIModels
             }
         }
     }
