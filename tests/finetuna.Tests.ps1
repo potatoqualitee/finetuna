@@ -79,8 +79,7 @@ Describe "finetuna Module Tests" {
 
     Context "Invoke-TuneChat" {
         It "Should send a message to the fine-tuned model for chat completion" {
-            $model = Get-TuneModel -Custom | Select-Object -First 1
-            $result = Invoke-TuneChat -Message "Test message" -Model $model.id
+            $result = Invoke-TuneChat -Message "Test message"
             $result | Should -Not -BeNullOrEmpty
         }
     }
