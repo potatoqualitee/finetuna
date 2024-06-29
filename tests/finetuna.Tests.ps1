@@ -5,7 +5,6 @@ BeforeAll {
     }
     Import-Module ./finetuna.psd1
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
-    Get-TuneJob | Where-Object status -notin 'failed', 'succeeded' | Stop-TuneJob -Confirm:$false
 }
 
 Describe "finetuna Module Tests" {
@@ -19,6 +18,8 @@ Describe "finetuna Module Tests" {
             $provider.ApiKey | Should -Not -BeNullOrEmpty
             $provider.ApiType | Should -Be 'openai'
         }
+        # Now that it's set
+        Get-TuneJob | Where-Object status -notin 'failed', 'succeeded' | Stop-TuneJob -Confirm:$false
     }
 
     Context "Get-TuneProvider" {
