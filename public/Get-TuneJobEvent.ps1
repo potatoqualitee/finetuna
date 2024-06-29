@@ -21,50 +21,26 @@ function Get-TuneJobEvent {
     )
     process {
         foreach ($eventid in $Id) {
-            $OpenAIParameter = Get-OpenAIAPIParameter -Parameter $script:bigparms -Endpoint FineTuning.JobEvents
-            $Uri = $OpenAIParameter.Uri -replace "\{0\}", $eventid -replace "\{1\}", "?limit=1000"
-
+            $OpenAIParameter = Get-OpenAIAPIParameter -Endpoint FineTuning.JobEvents
             $params = @{
-                Method       = 'Get'
-                Uri          = $Uri
+                Method       = 'GET'
+                Uri          = ($OpenAIParameter.Uri -f $eventid)
                 ContentType  = $OpenAIParameter.ContentType
                 ApiKey       = $OpenAIParameter.ApiKey
                 AuthType     = $OpenAIParameter.AuthType
                 Organization = $OpenAIParameter.Organization
             }
-
             if ($Raw) {
-                $params['ReturnRawResponse'] = $true
-            }
-
-            $Response = Invoke-OpenAIAPIRequest @params
-
-            if (-not $Raw) {
+                Invoke-OpenAIAPIRequest @params
+            } else {
+                $Response = Invoke-OpenAIAPIRequest @params
                 $Response = $Response | ConvertFrom-Json
                 if ($Response.data) {
-                    $Response.data | ForEach-Object {
-                        #splat add-member
-                        $splat = @{
-                            MemberType = 'NoteProperty'
-                            Name       = 'PSTypeName'
-                            Value      = 'PSOpenAI.FineTuningJobEvent'
-                            PassThru   = $true
-                        }
-                        $PSItem | Add-Member @splat
-                    }
+                    $Response.data
                 } else {
-                    # splat Add-Member with a hashtable
-                    $splat = @{
-                        MemberType = 'NoteProperty'
-                        Name       = 'PSTypeName'
-                        Value      = 'PSOpenAI.FineTuningJobEvent'
-                        PassThru   = $true
-                    }
-                    $Response | Add-Member @splat
+                    $Response
                 }
             }
-
-            Write-Output $Response
         }
     }
 }

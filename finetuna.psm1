@@ -6,7 +6,7 @@ if (-not (Get-Module PSOpenAI)) {
 }
 # Get PSOpenAI's private functions
 $modulepath = Get-Module -Name PSOpenAI -ListAvailable | Select-Object -First 1
-$privatedir = Join-Path -Path $modulepath.ModuleBase -ChildPath private
+$privatedir = Join-Path -Path $modulepath.ModuleBase -ChildPath Private
 function ValidateModelName {
     param([string]$ModelName)
     if ($ModelName -notin $script:ValidModels -and -not $ModelName.StartsWith("ft:")) {
@@ -24,6 +24,7 @@ function Import-ModuleFile {
     else { $ExecutionContext.InvokeCommand.InvokeScript($false, ([scriptblock]::Create([io.file]::ReadAllText($Path))), $null, $null) }
 }
 
+# import internal functions from PSOpenAI bc I have changes
 foreach ($file in (Get-ChildItem -Path $privatedir -Filter *.ps1)) {
     . Import-ModuleFile -Path $file.FullName
 }
@@ -38,7 +39,6 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\public" -Filter "*.ps1" -Recur
     . Import-ModuleFile -Path $function.FullName
 }
 
-$PSDefaultParameterValues["*:ApiKey"] = $env:OpenAIKey
 $PSDefaultParameterValues["*:NoTypeInformation"] = $true
 
 Set-Alias -Name Invoke-TunedChat -Value Invoke-TuneChat
@@ -71,7 +71,9 @@ if (-not (Test-Path -Path $script:configdir)) {
 
 $configFile = Join-Path -Path $script:configdir -ChildPath config.json
 
-if (Test-Path -Path $configFile) {
+$apiKey = (Get-OpenAIContext).ApiKey
+
+if (-not $apiKey -and (Test-Path -Path $configFile)) {
     $persisted = Get-Content -Path $configFile -Raw | ConvertFrom-Json
     $splat = @{}
     if ($persisted.ApiKey) { $splat.ApiKey = $persisted.ApiKey }
@@ -82,17 +84,4 @@ if (Test-Path -Path $configFile) {
     if ($persisted.AuthType) { $splat.AuthType = $persisted.AuthType }
     if ($persisted.Organization) { $splat.Organization = $persisted.Organization }
     $null = Set-TuneProvider @splat
-}
-
-
-# get context values to pass to Get-OpenAIAPIParameter
-$context = Get-OpenAIContext
-$script:bigparms = @{
-    ApiKey        = $context.ApiKey
-    AuthType      = $context.AuthType
-    Organization  = $context.Organization
-    ApiBase       = $context.ApiBase
-    ApiVersion    = $context.ApiVersion
-    TimeoutSec    = $context.TimeoutSec
-    MaxRetryCount = $context.MaxRetryCount
 }

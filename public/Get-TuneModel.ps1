@@ -40,21 +40,20 @@ function Get-TuneModel {
         if ($Model) {
             foreach ($modelname in $Model) {
                 if ($Custom) {
-                    Get-OpenAIModel -Model $modelname | Where-Object owned_by -notmatch "openai|system"
+                    Get-OpenAIModels -Name $modelname | Where-Object owned_by -notmatch "openai|system"
                 } elseif ($Latest) {
-                    Get-OpenAIModel -Model $modelname | Select-Object -Last 1
+                    Get-OpenAIModels -Name $modelname | Select-Object -Last 1
                 } else {
-                    Get-OpenAIModel -Model $modelname
+                    Get-OpenAIModels -Name $modelname
                 }
             }
         } else {
-
             if ($Custom) {
-                Get-OpenAIModel | Where-Object owned_by -notmatch "openai|system"
+                Get-OpenAIModels | Where-Object owned_by -notmatch "openai|system"
             } elseif ($Latest) {
-                Get-OpenAIModel | Select-Object -Last 1
+                Get-OpenAIModels | Select-Object -Last 1
             } else {
-                Get-OpenAIModel
+                Get-OpenAIModels
             }
         }
     }

@@ -1,11 +1,13 @@
 function Set-TuneProvider {
     <#
     .SYNOPSIS
-        Configures the OpenAI or Azure OpenAI service context for finetuna.
+        Configures the OpenAI or Azure OpenAI service context for subsequent finetuna commands.
 
     .DESCRIPTION
-        This command sets the necessary context for interacting with either the OpenAI or Azure OpenAI service within finetuna.
+        This command sets the necessary context for interacting with either the OpenAI or Azure OpenAI service.
         It sets the API key, API base, deployment, authentication type, and other parameters required for the service.
+
+        The configuration can be persisted to a file for future use.
 
     .PARAMETER ApiKey
         The API key for accessing the OpenAI or Azure OpenAI service.
@@ -32,9 +34,22 @@ function Set-TuneProvider {
         When specified, the configuration is not persisted to a file.
 
     .EXAMPLE
-        Set-TuneProvider -ApiKey "your-api-key" -ApiType "OpenAI"
+    $config = @{
+        ApiKey = "your-api-key"
+        ApiBase = "https://your-resource-name.openai.azure.com"
+        Deployment = "your-deployment-name"
+        ApiType = "Azure"
+        ApiVersion = "2024-04-01-preview"
+        AuthType = "azure"
+    }
+    Set-TuneProvider @config
 
-        This example sets the OpenAI provider configuration for OpenAI and persists it.
+    This example sets the OpenAI provider configuration for Azure and persists it.
+
+    .EXAMPLE
+    Set-TuneProvider -ApiKey "your-api-key" -Provider "OpenAI"
+
+    This example sets the OpenAI provider configuration for OpenAI and persists it.
     #>
     [CmdletBinding()]
     param (
@@ -56,15 +71,36 @@ function Set-TuneProvider {
         [string]$Organization,
         [switch]$NoPersist
     )
+    begin {
+        $PSDefaultParameterValues["*-Variable:Scope"] = 1
+        # Retrieve the current PSDefaultParameterValues
+        $defaultvalues = Get-Variable -Name PSDefaultParameterValues -ErrorAction SilentlyContinue
+
+        # Check if the variable exists, if not, initialize it as an empty hashtable
+        if (-not $defaultvalues) {
+            $currentDefaults = @{}
+        } else {
+            $currentDefaults = $defaultvalues.Value
+        }
+    }
     process {
         if (-not $AuthType) {
             $AuthType = if ($ApiType -eq 'Azure') { 'Azure' } else { 'OpenAI' }
         }
 
+        if ($PSBoundParameters.Count -eq 1 -and $Deployment) {
+            $currentDefaults['*:Deployment'] = $Deployment
+            $currentDefaults['*:Model'] = $Deployment
+
+            # Set the updated PSDefaultParameterValues back
+            $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
+            Get-TuneProvider
+            return
+        }
+
         if (-not $ApiKey) {
             $ApiKey = Get-ApiKey -PlainText
         }
-        $null = Clear-OpenAIProvider
 
         if ($ApiType -eq 'Azure') {
             # Set context for Azure
@@ -81,20 +117,39 @@ function Set-TuneProvider {
                 $splat.ApiVersion = $ApiVersion
             }
             if ($Deployment) {
-                Set-Variable -Scope 1 -Name PSDefaultParameterValues -Force -ErrorAction SilentlyContinue -Value @{
-                    '*:Deployment' = $Deployment
-                    '*:Model'      = $Deployment
-                }
+                $currentDefaults['*:Deployment'] = $Deployment
+                $currentDefaults['*:Model'] = $Deployment
+
+                # Set the updated PSDefaultParameterValues back
+                $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
             }
         } else {
             # Set context for OpenAI
             $splat = @{
-                ApiType  = 'OpenAI'
-                AuthType = 'OpenAI'
-                ApiKey   = $ApiKey
+                ApiType      = 'OpenAI'
+                AuthType     = 'OpenAI'
+                ApiKey       = $ApiKey
+                ApiBase      = $null
+                ApiVersion   = $null
+                Organization = $null
             }
         }
         $null = Set-OpenAIContext @splat
+
+        # get context values to pass to Get-OpenAIAPIParameter
+        $context = Get-OpenAIContext
+        $currentDefaults['Get-OpenAIAPIParameter:Parameters'] = $script:defaultapiparms = @{
+            ApiKey        = $context.ApiKey
+            AuthType      = $context.AuthType
+            Organization  = $context.Organization
+            ApiBase       = $context.ApiBase
+            ApiVersion    = $context.ApiVersion
+            TimeoutSec    = $context.TimeoutSec
+            MaxRetryCount = $context.MaxRetryCount
+        }
+        $currentDefaults['Initialize-APIKey:ApiKey'] = $context.ApiKey
+
+        $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
 
         if (-not $NoPersist) {
             $configFile = Join-Path -Path $script:configdir -ChildPath config.json
@@ -114,6 +169,6 @@ function Set-TuneProvider {
                 Write-Error "Error persisting configuration file: $_"
             }
         }
-        Get-OpenAIProvider
+        Get-TuneProvider
     }
 }

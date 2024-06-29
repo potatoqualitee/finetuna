@@ -46,6 +46,9 @@ function Invoke-TuneChat {
         if (-not $script:jsonmsg -or $env:NoPersistence -eq $true) {
             $script:jsonmsg = New-Object System.Collections.ArrayList
         }
+        if (-not $Model) {
+            $Model = "gpt-4o"
+        }
     }
     process {
         # sometimes it disappears?
@@ -79,36 +82,16 @@ function Invoke-TuneChat {
         }
 
         foreach ($msg in $Message) {
-            # check for dupes
-            $last = $script:jsonmsg | Select-Object -Last 1 -Skip 1
-            if ($last.content -ne $msg) {
-                $null = $script:jsonmsg.Add(@{
-                        role    = "user"
-                        content = $msg
-                    })
+            Write-Verbose "Chatting using model $Model"
+            Write-Verbose "Max tokens: $MaxTokens"
+
+            Write-Verbose "Asking: $msg"
+            $splat = @{
+                Message   = $msg
+                Model     = $Model
+                MaxTokens = $MaxTokens
             }
+            Request-ChatCompletion @splat
         }
-        $body = @{
-            model      = $Model
-            messages   = $script:jsonmsg
-            max_tokens = $MaxTokens
-        }
-        Write-Verbose "Chatting using model $Model"
-        Write-Verbose "Max tokens: $MaxTokens"
-        Write-Verbose "Body: $($body | ConvertTo-Json)"
-
-        Write-Verbose "Asking: $Message"
-        $splat = @{
-            Message      = $Message
-            Model        = $Model
-            MaxTokens    = $MaxTokens
-            ApiKey       = $script:ApiKey
-            ApiBase      = $script:ApiBase
-            AuthType     = $script:AuthType
-            ApiVersion   = $script:ApiVersion
-            Organization = $script:Organization
-        }
-        Request-ChatCompletion @splat
-
     }
 }

@@ -30,13 +30,13 @@ function Get-MaskedKeyString {
 }
 
 # this is a modified function that surfaces the API key that PSOpenAI will use
-function Get-APIKey {
+function Get-ApiKey {
     [CmdletBinding()]
     [OutputType([securestring])]
     Param(
         [Parameter(Position = 0)]
         [AllowNull()]
-        [System.Management.Automation.PSObjectPropertyDescriptor]$ApiKey,
+        [psobject]$ApiKey,
         [switch]$PlainText
     )
 

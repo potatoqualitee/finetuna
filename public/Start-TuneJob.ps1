@@ -13,15 +13,18 @@ function Start-TuneJob {
     The model to be used for tuning. Can be one of the predefined models or a fine-tuned model (starting with "ft:").
     Default is "gpt-3.5-turbo-0125".
 
+    .PARAMETER Wait
+    If specified, the function will wait for the fine-tuning job to complete before returning.
+
     .EXAMPLE
     Start-TuneJob -FileId file-abc123 -Model gpt-3.5-turbo-0125
 
     Starts a new fine-tuning job using the specified file and the gpt-3.5-turbo-0125 model.
 
     .EXAMPLE
-    Get-TuneFile | Where-Object Name -eq "training_data.jsonl" | Start-TuneJob -Model ft:gpt-3.5-turbo-0613:my-org:custom_model:7p4lURx
+    Get-TuneFile | Where-Object Name -eq "training_data.jsonl" | Start-TuneJob -Model ft:gpt-3.5-turbo-0613:my-org:custom_model:7p4lURx -Wait
 
-    Starts a new fine-tuning job using the file named "training_data.jsonl" and a custom fine-tuned model.
+    Starts a new fine-tuning job using the file named "training_data.jsonl" and a custom fine-tuned model, and waits for the job to complete.
     #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
@@ -33,27 +36,34 @@ function Start-TuneJob {
                 param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
                 $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
             })]
-        [ValidateScript({ ValidateModelName $_ })]
-        [string]$Model = "gpt-3.5-turbo-0125"
+        [string]$Model = "gpt-3.5-turbo-0125",
+        [Parameter()]
+        [switch]$Wait
     )
     process {
         foreach ($id in $FileId) {
             if ($PSCmdlet.ShouldProcess("File ID: $id for Model Tuning", 'Start')) {
-                $OpenAIParameter = Get-OpenAIAPIParameter -EndpointName Files
+                $OpenAIParameter = Get-OpenAIAPIParameter -EndpointName FineTuning.Jobs
 
                 $PostBody = [System.Collections.Specialized.OrderedDictionary]::new()
                 $PostBody.training_file = $id
                 $PostBody.model = $Model
 
                 $params = @{
-                    Method       = 'Post'
-                    Uri          = "{0}/fine-tunes" -f $OpenAIParameter.Uri
+                    Method       = 'POST'
+                    Uri          = $OpenAIParameter.Uri
                     Body         = $PostBody
                     ApiKey       = $OpenAIParameter.ApiKey
                     AuthType     = $OpenAIParameter.AuthType
                     Organization = $OpenAIParameter.Organization
                 }
-                Invoke-OpenAIAPIRequest @params
+                $job = Invoke-OpenAIAPIRequest @params | ConvertFrom-Json
+
+                if ($Wait) {
+                    $job | Wait-TuneJob
+                } else {
+                    $job
+                }
             }
         }
     }
