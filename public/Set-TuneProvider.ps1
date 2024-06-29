@@ -72,7 +72,7 @@ function Set-TuneProvider {
         [switch]$NoPersist
     )
     begin {
-        $PSDefaultParameterValues["*Var*:Scope"] = 1
+        $PSDefaultParameterValues["*Var*:Scope"] = 2
         # Retrieve the current PSDefaultParameterValues
         $defaultvalues = Get-Variable -Name PSDefaultParameterValues -ErrorAction SilentlyContinue
 
