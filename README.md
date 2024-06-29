@@ -9,7 +9,8 @@
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Quick Start](#quick-start)
+- [Demo Notebook](#demo-notebook)
+- [Manual Quick Start](#quick-start)
 - [Usage](#usage)
 - [Command Overview](#command-overview)
 - [Azure OpenAI Services](#azure-openai-services)
@@ -50,7 +51,41 @@ Right now, the awesome functionality is that you can pipe a whole directory of j
     ```
    You may also want to put it in your $profile. `$env:OpenAIKey` also works to provide compatibility with other PowerShell modules.
 
-## Quick Start
+## Demo Notebook
+
+finetuna comes with a demo Jupyter notebook that showcases the main functionalities of the module. The notebook is located in the root directory of the module and is named `demo.ipynb`.
+
+### Launching the Demo Notebook
+
+To launch the demo notebook, use the `Start-TuneDemo` command:
+
+```powershell
+Start-TuneDemo
+```
+
+This command will attempt to launch the notebook in Visual Studio Code (regular or Insiders edition). If Visual Studio Code is not available, it will fall back to platform-specific launchers such as Jupyter or the default application associated with .ipynb files.
+
+### Demo Notebook Contents
+
+The demo notebook covers the following topics:
+
+1. Setting the provider configuration
+2. Grabbing a tuning file
+3. Checking the validity of the training file
+4. Uploading the file
+5. Checking the uploaded file
+6. Starting a tuning job
+7. Waiting for the job to complete
+8. Retrieving the job details
+9. Retrieving events for a specific fine-tuning job
+10. Retrieving and deleting custom models
+11. Retrieving the default model
+12. Measuring token count for a given text
+13. Getting the current provider configuration
+
+By following along with the demo notebook, you can get a hands-on understanding of how to use finetuna to fine-tune OpenAI models and interact with them through PowerShell.
+
+## Manual Quick Start
 
 ### Train* a whole bot in one line
 
@@ -139,6 +174,8 @@ $splat = @{
 }
 Set-TuneProvider @splat
 ```
+
+Note that finetuned models can be surprisingly expensive to host on Azure ($3/hr + training costs). Be sure to [check the pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/#overview) before you start training.
 
 ### Azure FAQ
 
