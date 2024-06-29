@@ -46,6 +46,9 @@ function Invoke-TuneChat {
         if (-not $script:jsonmsg -or $env:NoPersistence -eq $true) {
             $script:jsonmsg = New-Object System.Collections.ArrayList
         }
+        if (-not $Model) {
+            $Model = "gpt-4o"
+        }
     }
     process {
         # sometimes it disappears?
