@@ -20,6 +20,17 @@ Describe "finetuna Module Tests" {
             $provider.ApiType | Should -Be 'openai'
             (Get-OpenAIContext).ApiKey | Should -Not -BeNullOrEmpty
         }
+
+        $context = Get-OpenAIContext
+        $global:PSDefaultParameterValues['Get-OpenAIAPIParameter:Parameters'] = @{
+            ApiKey        = $context.ApiKey
+            AuthType      = $context.AuthType
+            Organization  = $context.Organization
+            ApiBase       = $context.ApiBase
+            ApiVersion    = $context.ApiVersion
+            TimeoutSec    = $context.TimeoutSec
+            MaxRetryCount = $context.MaxRetryCount
+        }
     }
 
     Context "Get-TuneProvider" {
