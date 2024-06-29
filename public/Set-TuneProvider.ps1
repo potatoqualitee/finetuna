@@ -137,7 +137,7 @@ function Set-TuneProvider {
         write-warning "Setting OpenAI context..."
         $splat | Out-String | Write-Warning
         $null = Set-OpenAIContext @splat
-
+        Get-OpenAIContext | Out-String | Write-Warning
         # get context values to pass to Get-OpenAIAPIParameter
         $context = Get-OpenAIContext
         $currentDefaults['Get-OpenAIAPIParameter:Parameters'] = $script:defaultapiparms = @{
