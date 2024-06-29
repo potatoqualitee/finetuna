@@ -42,7 +42,7 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\public" -Filter "*.ps1" -Recur
 
 # i need these psopenai public things to use my internal functions
 foreach ($file in (Get-ChildItem -Path $publicdir -Filter *.ps1)) {
-    . Import-ModuleFile -Path $file.FullName
+    #. Import-ModuleFile -Path $file.FullName
 }
 
 $PSDefaultParameterValues["*:NoTypeInformation"] = $true
