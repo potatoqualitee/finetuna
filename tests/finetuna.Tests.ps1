@@ -1,16 +1,17 @@
-Describe "finetuna Module Tests" {
-    BeforeAll {
-        $apiKey = $env:OPENAI_API_KEY
 
-        if (-not $apiKey) {
-            throw "OPENAI_API_KEY environment variable is not set."
-        }
-        Import-Module ./finetuna.psd1
-        $parent = Split-Path $PSScriptRoot -Parent
-        $samples = Join-Path -Parent $parent -ChildPath samples
-        $sampleFilePath = Join-Path -Parent $samples -ChildPath totbot-tee-tune.jsonl
+BeforeAll {
+    $apiKey = $env:OPENAI_API_KEY
 
+    if (-not $apiKey) {
+        throw "OPENAI_API_KEY environment variable is not set."
     }
+    Import-Module ./finetuna.psd1
+    $parent = Split-Path $PSScriptRoot -Parent
+    $samples = Join-Path -Parent $parent -ChildPath samples
+    $script:sampleFilePath = Join-Path -Parent $samples -ChildPath totbot-tee-tune.jsonl
+}
+
+Describe "finetuna Module Tests" {
     Context "Set-TuneProvider" {
         It "Should set the API key and configuration" {
             $splat = @{
@@ -98,6 +99,86 @@ Describe "finetuna Module Tests" {
             $file = Get-TuneFile | Where-Object { $_.filename -eq "totbot-tee-tune.jsonl" }
             $result = Remove-TuneFile -Id $file.id -Confirm:$false
             $result.Status | Should -Be 'Removed'
+        }
+    }
+
+    Context "Clear-TuneProvider" {
+        It "Should clear the provider configuration" {
+            Clear-TuneProvider
+            $provider = Get-TuneProvider
+            $provider.ApiKey | Should -BeNullOrEmpty
+            $provider.ApiType | Should -BeNullOrEmpty
+        }
+    }
+
+    Context "Compare-Embedding" {
+        It "Should compare embeddings and return similarities" {
+            $embeddings = @{
+                "hello" = Get-Embedding -Text "hello"
+                "hi"    = Get-Embedding -Text "hi"
+            }
+            $result = Compare-Embedding -Query "greeting" -Embeddings $embeddings
+            $result.Similarity | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Get-Embedding" {
+        It "Should generate an embedding for the given text" {
+            $result = Get-Embedding -Text "Hello, world!"
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Get-TuneFileContent" {
+        It "Should retrieve the content of a file" {
+            $file = Get-TuneFile | Select-Object -First 1
+            $result = Get-TuneFileContent -Id $file.id
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Get-TuneJobEvent" {
+        It "Should retrieve the events of a fine-tuning job" {
+            $job = Get-TuneJob | Select-Object -First 1
+            $result = Get-TuneJobEvent -Id $job.id
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Get-TuneModelDefault" {
+        It "Should retrieve the default model" {
+            $result = Get-TuneModelDefault
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Measure-TuneToken" {
+        It "Should measure the token count and cost estimates for the given text" {
+            $result = Measure-TuneToken -InputObject "Hello, world!"
+            $result.TokenCount | Should -BeGreaterThan 0
+        }
+    }
+
+    Context "Request-TuneFileReview" {
+        It "Should request a file review and provide improvement suggestions" {
+            $result = Request-TuneFileReview -FilePath $sampleFilePath
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Set-TuneModelDefault" {
+        It "Should set the default model" {
+            $model = Get-TuneModel | Select-Object -First 1
+            Set-TuneModelDefault -Model $model.id
+            $result = Get-TuneModelDefault
+            $result | Should -Be $model.id
+        }
+    }
+
+    Context "Test-TuneFile" {
+        It "Should test the validity of a tune file" {
+            $result = Test-TuneFile -FilePath $sampleFilePath
+            $result.IsValid | Should -Be $true
         }
     }
 }
