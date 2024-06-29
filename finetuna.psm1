@@ -87,7 +87,7 @@ if (Test-Path -Path $configFile) {
 
 # get context values to pass to Get-OpenAIAPIParameter
 $context = Get-OpenAIContext
-$script:bigparms = @{
+$PSDefaultParameterValues["Get-OpenAIAPIParameter:Parameters"] = @{
     ApiKey        = $context.ApiKey
     AuthType      = $context.AuthType
     Organization  = $context.Organization

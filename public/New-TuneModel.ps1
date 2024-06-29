@@ -29,14 +29,13 @@ function New-TuneModel {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
-        [ValidateScript({ Test-Path $_ })]
+        [ValidateScript({ Test-Path $PSItem })]
         [System.IO.FileInfo]$FilePath,
         [Parameter(Position = 0)]
         [ArgumentCompleter({
                 param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
                 $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
             })]
-        [ValidateScript({ ValidateModelName $_ })]
         [string]$Model = "gpt-3.5-turbo-0125",
         [switch]$Append
     )

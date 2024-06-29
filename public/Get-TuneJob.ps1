@@ -30,7 +30,7 @@ function Get-TuneJob {
         [switch]$Raw
     )
     process {
-        $OpenAIParameter = Get-OpenAIAPIParameter -Parameter $script:bigparms -Endpoint FineTuning.Jobs
+        $OpenAIParameter = Get-OpenAIAPIParameter -Endpoint FineTuning.Jobs
 
         if ($Id) {
             $Uri = "{0}/{1}" -f $OpenAIParameter.Uri, $Id

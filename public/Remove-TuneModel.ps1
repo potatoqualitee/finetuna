@@ -30,12 +30,19 @@ function Remove-TuneModel {
     param (
         [Parameter(ValueFromPipelineByPropertyName, Mandatory)]
         [Alias("ModelName", "model_name", "id")]
-        [string[]]$Model
+        [psobject[]]$Model
     )
     process {
         foreach ($modelName in $Model) {
+            if ($modelName.id) {
+                $modelName = $modelName.id
+            }
             if ($PSCmdlet.ShouldProcess("Model: $modelName", 'Delete')) {
-                Remove-OpenAIModel -Model $modelName
+                $null = Remove-OpenAIModel -ModelId $modelName
+                [pscustomobject]@{
+                    Model = $modelName
+                    Status = 'Removed'
+                }
             }
         }
     }

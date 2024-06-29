@@ -35,7 +35,6 @@ function Set-TuneModelDefault {
                 param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
                 $script:ValidModels | Where-Object { $_ -like "$WordToComplete*" }
             })]
-        [ValidateScript({ ValidateModelName $_ })]
         [Alias("ModelName", "model_name", "id")]
         [string]$Model = "gpt-3.5-turbo-0125",
         [switch]$Latest

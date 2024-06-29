@@ -38,7 +38,11 @@ function Remove-TuneFile {
     process {
         foreach ($fileId in $Id) {
             if ($PSCmdlet.ShouldProcess("File ID: $fileId", 'Remove')) {
-                Remove-OpenAIFile -FileId $fileId
+                $null = Remove-OpenAIFile -FileId $fileId
+                [pscustomobject]@{
+                    File   = $fileId
+                    Status = 'Removed'
+                }
             }
         }
     }
