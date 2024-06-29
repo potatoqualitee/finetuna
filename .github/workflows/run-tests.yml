@@ -13,7 +13,7 @@ jobs:
 
     - name: Cache PowerShell modules
       id: cache-psmodules
-      uses: potatoqualitee/psmodulecache@v5.2
+      uses: potatoqualitee/psmodulecache@v6.2
       with:
         modules-to-cache: PSOpenAI
 
