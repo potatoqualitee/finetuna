@@ -73,7 +73,7 @@ function Request-Embeddings {
 
     begin {
         # Get API context
-        $OpenAIParameter = Get-OpenAIAPIParameter -EndpointName 'Embeddings' -Parameters $PSBoundParameters -Engine $Model -ErrorAction Stop
+        $OpenAIParameter = Get-OpenAIAPIParameter -EndpointName 'Embeddings' -Engine $Model -ErrorAction Stop
     }
 
     process {
