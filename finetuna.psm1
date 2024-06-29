@@ -82,17 +82,3 @@ if ((-not (Get-OpenAIContext).ApiKey) -and (Test-Path -Path $configFile)) {
     if ($persisted.Organization) { $splat.Organization = $persisted.Organization }
     $null = Set-TuneProvider @splat
 }
-
-# get context values to pass to Get-OpenAIAPIParameter
-$context = Get-OpenAIContext
-if ($context.ApiKey) {
-    $PSDefaultParameterValues["Get-OpenAIAPIParameter:Parameters"] = @{
-        ApiKey        = $context.ApiKey
-        AuthType      = $context.AuthType
-        Organization  = $context.Organization
-        ApiBase       = $context.ApiBase
-        ApiVersion    = $context.ApiVersion
-        TimeoutSec    = $context.TimeoutSec
-        MaxRetryCount = $context.MaxRetryCount
-    }
-}

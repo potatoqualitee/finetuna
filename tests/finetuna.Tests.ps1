@@ -17,8 +17,6 @@ Describe "finetuna Module Tests" {
             $provider = Set-TuneProvider @splat
             $provider.ApiKey | Should -Not -BeNullOrEmpty
             $provider.ApiType | Should -Be 'openai'
-            $PSDefaultParameterValues["Get-OpenAIAPIParameter:Parameters"] | Out-String | Write-Warning
-            $PSDefaultParameterValues["Get-OpenAIAPIParameter:Parameters"] | Should -Not -BeNullOrEmpty
         }
     }
 
