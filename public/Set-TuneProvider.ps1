@@ -147,6 +147,7 @@ function Set-TuneProvider {
             TimeoutSec    = $context.TimeoutSec
             MaxRetryCount = $context.MaxRetryCount
         }
+        write-warning $script:defaultapiparms.ApiKey
         $null = Set-Variable -Name PSDefaultParameterValues -Value $currentDefaults -Force
 
         if (-not $NoPersist) {

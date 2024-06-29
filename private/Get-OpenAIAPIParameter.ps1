@@ -12,7 +12,6 @@ function Get-OpenAIAPIParameter {
         $Parameters = $script:defaultapiparms
     )
     if (-not $Parameters) {
-        write-warning HELLO
         # get context values to pass to Get-OpenAIAPIParameter
         $context = Get-OpenAIContext
         if ($context.ApiKey) {
