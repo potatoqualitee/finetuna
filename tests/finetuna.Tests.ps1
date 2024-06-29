@@ -60,11 +60,9 @@ Describe "finetuna Module Tests" {
 
     Context "Wait-TuneJob" {
         It "Should wait for a fine-tuning job to complete" {
-            $job = Get-TuneJob | Where-Object { $_.status -eq 'pending' } | Select-Object -First 1
-            if ($job) {
-                $result = Wait-TuneJob -JobId $job.id
-                $result.status | Should -Be 'succeeded'
-            }
+            $job = Get-TuneJob | Select-Object -First 1
+            $result = Wait-TuneJob -JobId $job.id
+            $result.status | Should -Be 'succeeded'
         }
     }
 
