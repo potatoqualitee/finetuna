@@ -102,11 +102,6 @@ function Invoke-TuneChat {
             Message      = $Message
             Model        = $Model
             MaxTokens    = $MaxTokens
-            ApiKey       = $script:ApiKey
-            ApiBase      = $script:ApiBase
-            AuthType     = $script:AuthType
-            ApiVersion   = $script:ApiVersion
-            Organization = $script:Organization
         }
         Request-ChatCompletion @splat
 
