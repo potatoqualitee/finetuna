@@ -55,6 +55,7 @@
         'Send-TuneFile',
         'Set-TuneModelDefault',
         'Set-TuneProvider',
+        'Start-TuneDemo',
         'Start-TuneJob',
         'Stop-TuneJob',
         'Test-TuneFile',

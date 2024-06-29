@@ -71,6 +71,11 @@ if (-not (Test-Path -Path $script:configdir)) {
 
 $configFile = Join-Path -Path $script:configdir -ChildPath config.json
 
+# make it compat with PSAI
+if ($env:OpenAIKey -and -not $env:OPENAI_API_KEY) {
+    $env:OPENAI_API_KEY = $env:OpenAIKey
+}
+
 $apiKey = (Get-OpenAIContext).ApiKey
 
 if (-not $apiKey -and (Test-Path -Path $configFile)) {
