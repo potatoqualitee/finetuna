@@ -14,6 +14,7 @@ Describe "finetuna Module Tests" {
                 ApiType = 'openai'
                 ApiKey  = $env:OPENAI_API_KEY
             }
+            write-warning $env:OPENAI_API_KEY
             $provider = Set-TuneProvider @splat
             $provider.ApiKey | Should -Not -BeNullOrEmpty
             $provider.ApiType | Should -Be 'openai'
