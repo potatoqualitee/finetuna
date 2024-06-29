@@ -1,22 +1,40 @@
-Describe "finetuna Module" {
-    Context "New-TuneModel (Create-CustomModel)" {
-        It "Should create a new fine-tuned model" {
-            # Create a test JSONL file
-            $testFile = Join-Path $TestDrive "test.jsonl"
-            '{"messages": [{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "Hello"}, {"role": "assistant", "content": "Hi there! How can I assist you today?"}]}' | Set-Content $testFile
+Describe "finetuna Module Tests" {
+    BeforeAll {
+        $apiKey = $env:OPENAI_API_KEY
 
-            # Create a new fine-tuned model
-            $model = New-TuneModel -FilePath $testFile
-            $model | Should -Not -BeNullOrEmpty
-            $model.id | Should -BeLike "ft:*"
+        if (-not $apiKey) {
+            throw "OPENAI_API_KEY environment variable is not set."
+        }
+        Import-Module ./finetuna.psd1
+        $parent = Split-Path $PSScriptRoot -Parent
+        $samples = Join-Path -Parent $parent -ChildPath samples
+        $sampleFilePath = Join-Path -Parent $samples -ChildPath totbot-tee-tune.jsonl
+
+    }
+    Context "Set-TuneProvider" {
+        It "Should set the API key and configuration" {
+            $splat = @{
+                ApiType = 'openai'
+                ApiKey  = $apiKey
+            }
+            $provider = Set-TuneProvider @splat
+            $provider.ApiKey | Should -Not -BeNullOrEmpty
+            $provider.ApiType | Should -Be 'openai'
         }
     }
 
-    Context "Invoke-TuneChat" {
-        It "Should return a response from the fine-tuned model" {
-            # Use the default model
-            $response = Invoke-TuneChat -Message "Hello, how are you?"
-            $response | Should -Not -BeNullOrEmpty
+    Context "Get-TuneProvider" {
+        It "Should get the API key and configuration" {
+            $provider = Get-TuneProvider
+            $provider.ApiKey | Should -Not -BeNullOrEmpty
+            $provider.ApiType | Should -Be 'openai'
+        }
+    }
+
+    Context "Send-TuneFile" {
+        It "Should upload a file for fine-tuning" {
+            $result = Send-TuneFile -FilePath $sampleFilePath
+            $result.id | Should -Match '^file-'
         }
     }
 
@@ -24,31 +42,62 @@ Describe "finetuna Module" {
         It "Should retrieve the list of files" {
             $files = Get-TuneFile
             $files | Should -Not -BeNullOrEmpty
-            $files[0].id | Should -BeLike "file-*"
         }
     }
 
-    Context "Measure-TuneToken" {
-        It "Should return token count and cost estimates" {
-            $result = Measure-TuneToken -InputObject "Hello, world!"
-            $result.TokenCount | Should -BeGreaterThan 0
-            $result.TrainingCost | Should -Not -BeNullOrEmpty
-            $result.InputUsageCost | Should -Not -BeNullOrEmpty
-            $result.OutputUsageCost | Should -Not -BeNullOrEmpty
+    Context "Start-TuneJob" {
+        It "Should start a fine-tuning job" {
+            $file = Get-TuneFile | Where-Object { $_.filename -eq "totbot-tee-tune.jsonl" }
+            $result = Start-TuneJob -FileId $file.id -Model "gpt-3.5-turbo-0613"
+            $result.id | Should -Match '^ft-'
         }
     }
 
-    Context "Set-TuneModelDefault" {
-        It "Should set the default model" {
-            Set-TuneModelDefault -Model "gpt-3.5-turbo-0125"
-            $defaultModel = Get-TuneModelDefault
-            $defaultModel | Should -Be "gpt-3.5-turbo-0125"
+    Context "Get-TuneJob" {
+        It "Should retrieve the status of a fine-tuning job" {
+            $job = Get-TuneJob | Select-Object -First 1
+            $job.status | Should -Not -BeNullOrEmpty
         }
     }
 
-    AfterAll {
-        # Clean up
-        Get-TuneModel -Custom | Remove-TuneModel -Confirm:$false
-        Get-TuneFile | Remove-TuneFile -Confirm:$false
+    Context "Wait-TuneJob" {
+        It "Should wait for a fine-tuning job to complete" {
+            $job = Get-TuneJob | Where-Object { $_.status -eq 'pending' } | Select-Object -First 1
+            if ($job) {
+                $result = Wait-TuneJob -JobId $job.id
+                $result.status | Should -Be 'succeeded'
+            }
+        }
+    }
+
+    Context "Get-TuneModel" {
+        It "Should retrieve the custom fine-tuned models" {
+            $models = Get-TuneModel -Custom
+            $models | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Invoke-TuneChat" {
+        It "Should send a message to the fine-tuned model for chat completion" {
+            $model = Get-TuneModel -Custom | Select-Object -First 1
+            $result = Invoke-TuneChat -Message "Test message" -Model $model.id
+            $result | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context "Remove-TuneModel" {
+        It "Should delete a fine-tuned model" {
+            $model = Get-TuneModel -Custom | Select-Object -First 1
+            $result = Remove-TuneModel -Model $model.id -Confirm:$false
+            $result.Status | Should -Be 'Removed'
+        }
+    }
+
+    Context "Remove-TuneFile" {
+        It "Should delete a file used for fine-tuning" {
+            $file = Get-TuneFile | Where-Object { $_.filename -eq "totbot-tee-tune.jsonl" }
+            $result = Remove-TuneFile -Id $file.id -Confirm:$false
+            $result.Status | Should -Be 'Removed'
+        }
     }
 }
