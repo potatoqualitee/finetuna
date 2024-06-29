@@ -6,9 +6,7 @@ BeforeAll {
         throw "OPENAI_API_KEY environment variable is not set."
     }
     Import-Module ./finetuna.psd1
-    $parent = Split-Path $PSScriptRoot -Parent
-    $samples = Join-Path -Parent $parent -ChildPath samples
-    $script:sampleFilePath = Join-Path -Parent $samples -ChildPath totbot-tee-tune.jsonl
+    $script:sampleFilePath = Join-Path -Parent samples -ChildPath totbot-tee-tune.jsonl
 }
 
 Describe "finetuna Module Tests" {
