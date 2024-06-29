@@ -7,6 +7,7 @@ BeforeAll {
     }
     Import-Module ./finetuna.psd1
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
+    Get-TuneJob | Where-Object status -notin 'failed', 'succeeded' | Remove-TuneJob -Confirm:$false
 }
 
 Describe "finetuna Module Tests" {
