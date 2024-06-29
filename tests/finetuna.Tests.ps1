@@ -49,7 +49,7 @@ Describe "finetuna Module Tests" {
         It "Should start a fine-tuning job" {
             $file = Get-TuneFile | Where-Object { $_.filename -eq "totbot-tee-tune.jsonl" }
             $result = Start-TuneJob -FileId $file.id -Model "gpt-3.5-turbo-0613"
-            $result.id | Should -Match '^ft-'
+            $result.id | Should -Match '^ftjob-'
         }
     }
 
