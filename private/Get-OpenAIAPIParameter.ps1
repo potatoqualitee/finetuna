@@ -15,7 +15,6 @@ function Get-OpenAIAPIParameter {
         # get context values to pass to Get-OpenAIAPIParameter
         $context = Get-OpenAIContext
         if ($context.ApiKey) {
-            write-warning $context.ApiKey
             $Parameters = @{
                 ApiKey        = $context.ApiKey
                 AuthType      = $context.AuthType
@@ -26,6 +25,7 @@ function Get-OpenAIAPIParameter {
                 MaxRetryCount = $context.MaxRetryCount
             }
         } else {
+            Get-OpenAIContext | Out-String | Write-Warning
             throw "No API key found in the context. Please set the API key using Set-TuneProvider."
         }
     }
