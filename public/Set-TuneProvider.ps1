@@ -134,6 +134,7 @@ function Set-TuneProvider {
                 Organization = $null
             }
         }
+        write-warning "Setting OpenAI context..."
         $null = Set-OpenAIContext @splat
 
         # get context values to pass to Get-OpenAIAPIParameter
