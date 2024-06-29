@@ -9,6 +9,9 @@ function Stop-TuneJob {
     .PARAMETER Id
     The ID of the fine-tuning job to cancel.
 
+    .PARAMETER Raw
+    Optional switch to return the raw response from the API.
+
     .PARAMETER WhatIf
     Shows what would happen if the cmdlet runs. The cmdlet is not run.
 
@@ -34,7 +37,8 @@ function Stop-TuneJob {
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [Alias('JobId')]
-        [string[]]$Id
+        [string[]]$Id,
+        [switch]$Raw
     )
     process {
         foreach ($jobid in $Id) {
@@ -50,7 +54,17 @@ function Stop-TuneJob {
                     AuthType     = $OpenAIParameter.AuthType
                     Organization = $OpenAIParameter.Organization
                 }
-                Invoke-OpenAIAPIRequest @params
+                if ($Raw) {
+                    Invoke-OpenAIAPIRequest @params
+                } else {
+                    $Response = Invoke-OpenAIAPIRequest @params
+                    $Response = $Response | ConvertFrom-Json
+                    if ($Response.data) {
+                        $Response.data
+                    } else {
+                        $Response
+                    }
+                }
             }
         }
     }

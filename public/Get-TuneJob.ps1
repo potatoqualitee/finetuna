@@ -46,38 +46,16 @@ function Get-TuneJob {
             AuthType     = $OpenAIParameter.AuthType
             Organization = $OpenAIParameter.Organization
         }
-
-        if ($Raw) {
-            $params['ReturnRawResponse'] = $true
-        }
-
-        $Response = Invoke-OpenAIAPIRequest @params
-
-        if (-not $Raw) {
+         if ($Raw) {
+            Invoke-OpenAIAPIRequest @params
+        } else {
+            $Response = Invoke-OpenAIAPIRequest @params
             $Response = $Response | ConvertFrom-Json
             if ($Response.data) {
-                $Response.data | ForEach-Object {
-                    #splat add-member
-                    $splat = @{
-                        MemberType = 'NoteProperty'
-                        Name       = 'PSTypeName'
-                        Value      = 'PSOpenAI.FineTuningJob'
-                        PassThru   = $true
-                    }
-                    $PSItem | Add-Member @splat
-                }
+                $Response.data
             } else {
-                # splat Add-Member with a hashtable
-                $splat = @{
-                    MemberType = 'NoteProperty'
-                    Name       = 'PSTypeName'
-                    Value      = 'PSOpenAI.FineTuningJob'
-                    PassThru   = $true
-                }
-                $Response | Add-Member @splat
+                $Response
             }
         }
-
-        Write-Output $Response
     }
 }

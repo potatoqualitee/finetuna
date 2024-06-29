@@ -81,7 +81,7 @@ function Remove-OpenAIModel {
                 AdditionalHeaders = $AdditionalHeaders
                 AdditionalBody    = $AdditionalBody
             }
-            $Response = Invoke-OpenAIAPIRequest @params
+            $Response = Invoke-OpenAIAPIRequest @params | ConvertFrom-Json
 
             # error check
             if ($null -eq $Response) {
