@@ -7,13 +7,6 @@ BeforeAll {
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
 }
 Describe "finetuna Module Tests" {
-    Context "Clear-TuneProvider" {
-        It "Should clear the provider configuration" {
-            #Clear-TuneProvider
-            $provider = Get-OpenAIContext
-            $provider.ApiKey | Should -BeNullOrEmpty
-        }
-    }
     Context "Set-TuneProvider" {
         It "Should set the API key and configuration" {
             $splat = @{
@@ -174,6 +167,14 @@ Describe "finetuna Module Tests" {
         It "Should test the validity of a tune file" {
             $result = Test-TuneFile -FilePath $sampleFilePath
             $result.IsValid | Should -Be $true
+        }
+    }
+
+    Context "Clear-TuneProvider" {
+        It "Should clear the provider configuration" {
+            Clear-TuneProvider
+            $provider = Get-OpenAIContext
+            $provider.ApiKey | Should -BeNullOrEmpty
         }
     }
 }
