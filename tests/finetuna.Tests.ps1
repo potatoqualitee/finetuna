@@ -7,13 +7,6 @@ BeforeAll {
     $script:sampleFilePath = Get-ChildItem -Recurse totbot-tee-tune.jsonl
 }
 Describe "finetuna Module Tests" {
-    BeforeEach {
-        $splat = @{
-            ApiType = 'openai'
-            ApiKey  = $env:OPENAI_API_KEY
-        }
-        Set-TuneProvider @splat
-    }
     Context "Clear-TuneProvider" {
         It "Should clear the provider configuration" {
             Clear-TuneProvider
