@@ -38,7 +38,6 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\public" -Filter "*.ps1" -Recur
     . Import-ModuleFile -Path $function.FullName
 }
 
-$PSDefaultParameterValues["*:ApiKey"] = $env:OpenAIKey
 $PSDefaultParameterValues["*:NoTypeInformation"] = $true
 
 Set-Alias -Name Invoke-TunedChat -Value Invoke-TuneChat
